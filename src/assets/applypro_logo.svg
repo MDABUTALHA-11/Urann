@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Cap Top Diamond -->
+  <path d="M24 4L3 15L24 26L45 15L24 4Z" fill="#1A68FF" />
+  <path d="M24 6.5L41.5 15L24 23.5L6.5 15L24 6.5Z" fill="#2E79FF" />
+  
+  <!-- Cap Base / Skullcap -->
+  <path d="M12 20.5V29C12 34.5 17.3 39 24 39C30.7 39 36 34.5 36 29V20.5L24 27.5L12 20.5Z" fill="#1454D1" />
+  
+  <!-- Tassel Ribbon & Bobble -->
+  <path d="M39 18V31C39 32.5 38 34 37 35.5L35.5 34.5C36.5 33.2 37.2 32 37.2 31V19L39 18Z" fill="#2563EB" />
+  <circle cx="36" cy="36" r="3" fill="#1A68FF" />
+  <path d="M34 37L33 44H39L38 37H34Z" fill="#1454D1" />
+</svg>

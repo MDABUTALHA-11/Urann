@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="uraanRed" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EF4444"/>
+      <stop offset="1" stop-color="#DC2626"/>
+    </linearGradient>
+    <linearGradient id="uraanGold" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="uraanGlow" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FEF08A"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Soaring Flight Wing (Representing Uraan / Soaring High) -->
+  <path d="M12 44C12 44 18 36 28 32C38 28 46 20 52 10C52 10 44 26 34 32C24 38 18 42 12 44Z" fill="url(#uraanGold)" />
+  
+  <!-- Graduation Cap Diamond -->
+  <path d="M32 8L56 20L32 32L8 20L32 8Z" fill="url(#uraanRed)" />
+  <path d="M32 11L51 20L32 29L13 20L32 11Z" fill="#F87171" opacity="0.4" />
+  
+  <!-- Cap Lower Structure -->
+  <path d="M18 26V37C18 43.5 24.3 49 32 49C39.7 49 46 43.5 46 37V26L32 34L18 26Z" fill="#B91C1C" />
+  
+  <!-- Guiding North Star (Aspiration) -->
+  <circle cx="56" cy="12" r="3.5" fill="url(#uraanGlow)" />
+  <path d="M56 4L57.5 9.5L63 11L57.5 12.5L56 18L54.5 12.5L49 11L54.5 9.5L56 4Z" fill="#FBBF24" />
+
+  <!-- Tassel / Golden Ribbon -->
+  <path d="M49 23V38C49 39.5 48 41 47 42L45 40C46 39 46.8 38 46.8 37V24L49 23Z" fill="#F59E0B" />
+  <circle cx="45" cy="43" r="3" fill="#FBBF24" />
+</svg>
