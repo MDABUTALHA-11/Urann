@@ -889,21 +889,137 @@
 
 @media (max-width: 640px) {
   .scholarship-world {
-    padding: 50px 0 60px;
+    padding: 44px 0 54px;
+    overflow-x: hidden;
+  }
+  .world-container {
+    padding: 0 16px;
   }
   .world-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 16px;
+  }
+  .world-header h2 {
+    font-size: 1.85rem;
+  }
+  .world-header p {
+    font-size: 0.92rem;
   }
   .verified-box {
     width: 100%;
+    padding: 14px 18px;
   }
+
+  /* Marquee Controls Bar on Mobile */
+  .marquee-controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .marquee-live-badge {
+    justify-content: center;
+  }
+  .marquee-action-btns {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+  .marquee-action-btns button {
+    flex: 1;
+    justify-content: center;
+    min-height: 40px;
+  }
+
+  /* Continent Marquee Cards on Mobile */
+  .continent-marquee-container {
+    padding: 8px 0 18px;
+    margin-bottom: 32px;
+  }
+  .continent-marquee-track {
+    gap: 16px;
+  }
+  .continent-marquee-track .continent-card {
+    width: 260px;
+    border-radius: 16px;
+  }
+  .continent-marquee-track .card-image {
+    height: 135px;
+  }
+  .continent-marquee-track .card-content {
+    padding: 14px 16px;
+  }
+  .continent-marquee-track .card-title-row h3 {
+    font-size: 1.05rem;
+  }
+  .continent-marquee-track .countries {
+    font-size: 0.78rem;
+    margin-bottom: 10px;
+  }
+  .continent-marquee-track .explore-btn {
+    padding: 9px;
+    font-size: 0.84rem;
+    min-height: 40px;
+  }
+
+  /* Continent Tabs on Mobile */
+  .continent-tabs {
+    gap: 8px;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .continent-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .continent-tab {
+    padding: 8px 12px;
+    border-radius: 12px;
+  }
+  .continent-tab .tab-info strong {
+    font-size: 0.8rem;
+  }
+  .continent-tab .tab-info small {
+    font-size: 0.68rem;
+  }
+
+  /* Database Section on Mobile */
   .database-section {
-    padding: 20px 16px;
+    padding: 20px 14px;
+    border-radius: 18px;
+    margin-bottom: 36px;
+  }
+  .database-heading {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .database-heading h2 {
+    font-size: 1.35rem;
   }
   .search-box {
     max-width: 100%;
+    min-height: 42px;
   }
+  .database-filters {
+    gap: 8px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .database-filters::-webkit-scrollbar {
+    display: none;
+  }
+  .database-filters button,
+  .database-filters select {
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 40px;
+    font-size: 0.8rem;
+  }
+
   .journey-line {
     flex-direction: column;
     gap: 10px;
@@ -911,5 +1027,25 @@
   }
   .brush-line {
     width: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  .scholarship-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px;
+  }
+  .scholarship-row .country {
+    grid-column: span 1;
+  }
+  .scholarship-row .country small {
+    max-width: 100%;
+    white-space: normal;
+  }
+  .scholarship-row .view-btn {
+    grid-column: span 1;
+    width: 100%;
+    min-height: 42px;
   }
 }

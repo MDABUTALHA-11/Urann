@@ -1308,6 +1308,11 @@ function App() {
                   </p>
                 </div>
 
+                <div className="mobile-swipe-hint">
+                  <ArrowRight size={13} />
+                  <span>Swipe horizontally to view all country packages</span>
+                </div>
+
                 <div className="comparison-table-wrap">
                   <table className="comparison-table">
                     <thead>

@@ -1,11 +1,17 @@
 html {
   background: #f6faf7;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   background: #f6faf7;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 
 * {
