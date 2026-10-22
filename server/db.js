@@ -7,32 +7,49 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-let isConnected = false;
+// Global cache for serverless environments (e.g. Vercel / AWS Lambda)
+let cached = global._mongooseCache;
+if (!cached) {
+  cached = global._mongooseCache = { conn: null, promise: null };
+}
 
 export async function connectDB() {
   const uri = process.env.MONGODB_URI;
 
   if (!uri) {
-    console.warn('[MongoDB] No MONGODB_URI found in environment. Falling back to local file storage.');
+    console.warn('[MongoDB] No MONGODB_URI found in environment. Using serverless fallback storage.');
     return false;
   }
 
-  if (isConnected) {
+  if (cached.conn && mongoose.connection.readyState === 1) {
     return true;
   }
 
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 5000, // Timeout in 5s so serverless invocations never freeze
+    };
+
+    cached.promise = mongoose.connect(uri, opts).then((m) => {
+      console.log(`✅ [MongoDB] Connected successfully to: ${m.connection.host}`);
+      return m;
+    }).catch((err) => {
+      console.error('❌ [MongoDB] Connection note (fallback enabled):', err.message);
+      cached.promise = null;
+      return null;
+    });
+  }
+
   try {
-    const conn = await mongoose.connect(uri);
-    isConnected = true;
-    console.log(`✅ [MongoDB] Connected successfully to: ${conn.connection.host}`);
-    return true;
+    cached.conn = await cached.promise;
+    return Boolean(cached.conn && mongoose.connection.readyState === 1);
   } catch (err) {
-    console.error('❌ [MongoDB] Connection error:', err.message);
-    console.warn('⚠️ [MongoDB] Falling back to local file storage.');
+    console.warn('⚠️ [MongoDB] Falling back to in-memory storage.');
     return false;
   }
 }
 
 export function isDBConnected() {
-  return isConnected && mongoose.connection.readyState === 1;
+  return Boolean(mongoose.connection && mongoose.connection.readyState === 1);
 }

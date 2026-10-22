@@ -77,6 +77,47 @@ app.get('/api/orders/:tran_id', async (req, res) => {
   const { tran_id } = req.params;
   const { session_id } = req.query;
   let order = await getOrder(tran_id);
+
+  // If order was not found in storage (e.g. cross-instance serverless invocation without DB),
+  // recover order details directly from Stripe Checkout Session
+  if (!order && stripe && (session_id || tran_id.startsWith('STRIPE_'))) {
+    try {
+      let session = null;
+      if (session_id) {
+        session = await stripe.checkout.sessions.retrieve(session_id);
+      }
+      if (session) {
+        const metadata = session.metadata || {};
+        order = await createOrder({
+          tran_id: session.client_reference_id || tran_id,
+          customer: {
+            name: metadata.name || session.customer_details?.name || 'Valued Student',
+            email: session.customer_details?.email || '',
+            phone: metadata.phone || '',
+            degree: 'Master',
+            cgpa: '',
+            notes: ''
+          },
+          package: {
+            id: 'custom-plan',
+            title: metadata.packageTitle || 'Uraan Application Plan',
+            amount: (session.amount_total || 2900) / 100
+          },
+          currency: (session.currency || 'USD').toUpperCase(),
+          status: (session.payment_status === 'paid' || session.status === 'complete') ? 'PAID' : 'PENDING',
+          payment: {
+            card_type: 'Stripe (Card / Digital Wallet)',
+            stripe_session_id: session.id,
+            stripe_payment_intent: session.payment_intent,
+            paymentTime: new Date().toISOString()
+          }
+        });
+      }
+    } catch (recoverErr) {
+      console.warn('[STRIPE] Session recovery note:', recoverErr.message);
+    }
+  }
+
   if (!order) {
     return res.status(404).json({ error: 'Order not found' });
   }
@@ -288,12 +329,20 @@ app.post('/api/payment/ipn', async (req, res) => {
   res.status(200).send('IPN received OK');
 });
 
-// 6. STRIPE PAYMENT INITIATION
+// 6. STRIPE CONFIGURATION
+app.get('/api/payment/stripe/config', (req, res) => {
+  res.json({
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+    currency: STRIPE_CURRENCY
+  });
+});
+
+// 7. STRIPE PAYMENT INITIATION
 app.post('/api/payment/stripe/init', async (req, res) => {
   try {
     if (!stripe) {
       return res.status(500).json({
-        error: 'Stripe is not configured yet. Please set STRIPE_SECRET_KEY in server/.env'
+        error: 'Stripe is not configured yet. Please set STRIPE_SECRET_KEY in your Vercel Project Settings (Environment Variables).'
       });
     }
 
