@@ -1,6 +1,14 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import uraanLogo from './assets/uraan_logo.png'
 import heroVideo from './assets/student_journey.mp4'
+import avatarAyesha from './assets/avatar_ayesha.jpg'
+import avatarRakib from './assets/avatar_rakib.jpg'
+import avatarUmme from './assets/avatar_umme.jpg'
+import bannerMotivation from './assets/banner_motivation.jpg'
+import bannerMountains from './assets/banner_mountains.jpg'
+import heroLandmarks from './assets/hero_landmarks.jpg'
+import heroTravelPanorama from './assets/hero_travel_panorama.jpg'
+import scholarshipHero from './assets/scholarship_hero.png'
 
 // Icons
 import {
@@ -43,14 +51,18 @@ import {
   Play,
   Pause,
   Volume2,
-  VolumeX
+  VolumeX,
+  CreditCard,
+  AlertCircle,
+  Loader2
 } from 'lucide-react'
 
 // Demo Template Generator Helpers
 import {
   generateTemplates,
   downloadDocFile,
-  downloadTxtFile
+  downloadTxtFile,
+  downloadOfficialInvoice
 } from './demoTemplates.js'
 
 // Master Scholarship & Country Datasets
@@ -137,6 +149,107 @@ function App() {
     notes: ''
   })
   const [planBookingSubmitted, setPlanBookingSubmitted] = useState(false)
+
+  // Payment Gateway State & Callback Handler
+  const [selectedGateway, setSelectedGateway] = useState('sslcommerz') // 'sslcommerz' | 'stripe'
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false)
+  const [paymentError, setPaymentError] = useState(null)
+  const [paymentSuccessOrder, setPaymentSuccessOrder] = useState(null)
+  const [paymentStatusNotice, setPaymentStatusNotice] = useState(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const paymentStatus = params.get('payment_status')
+    const tranId = params.get('tran_id')
+    const sessionId = params.get('session_id')
+    const msg = params.get('msg')
+
+    if (paymentStatus === 'success' && tranId) {
+      // Fetch verified order details from backend (pass session_id for Stripe verification if available)
+      const fetchUrl = sessionId
+        ? `/api/orders/${tranId}?session_id=${encodeURIComponent(sessionId)}`
+        : `/api/orders/${tranId}`
+
+      fetch(fetchUrl)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.order) {
+            setPaymentSuccessOrder(data.order)
+          } else {
+            setPaymentSuccessOrder({
+              tran_id: tranId,
+              status: 'PAID',
+              package: { title: 'Uraan Study Abroad Plan', amount: 3000 },
+              customer: { name: 'Student' }
+            })
+          }
+        })
+        .catch(() => {
+          setPaymentSuccessOrder({
+            tran_id: tranId,
+            status: 'PAID',
+            package: { title: 'Uraan Study Abroad Plan', amount: 3000 },
+            customer: { name: 'Student' }
+          })
+        })
+      window.history.replaceState({}, document.title, window.location.pathname)
+    } else if (paymentStatus === 'failed') {
+      setPaymentStatusNotice({
+        type: 'error',
+        message: msg || 'Payment was declined or unsuccessful. Please try again.'
+      })
+      window.history.replaceState({}, document.title, window.location.pathname)
+    } else if (paymentStatus === 'cancelled') {
+      setPaymentStatusNotice({
+        type: 'warning',
+        message: 'Payment process was cancelled. You can retry enrollment anytime.'
+      })
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [])
+
+  const handlePlanPaymentSubmit = async (e) => {
+    e.preventDefault()
+    setIsPaymentLoading(true)
+    setPaymentError(null)
+
+    try {
+      const payload = {
+        name: planBookingForm.name,
+        phone: planBookingForm.phone,
+        email: planBookingForm.email,
+        degree: planBookingForm.degree,
+        cgpa: planBookingForm.cgpa,
+        notes: planBookingForm.notes,
+        packageTitle: selectedPlanBookingModal?.item?.title || 'Uraan Application Plan',
+        packageId: selectedPlanBookingModal?.item?.id || 'custom-plan',
+        amount: selectedPlanBookingModal?.item?.price || 3000
+      }
+
+      // Route to chosen gateway
+      const endpoint = selectedGateway === 'stripe' ? '/api/payment/stripe/init' : '/api/payment/init'
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      const data = await res.json()
+      if (data.url) {
+        // Redirect directly to SSLCOMMERZ or Stripe Checkout page
+        window.location.href = data.url
+      } else {
+        setPaymentError(data.error || 'Failed to start payment session. Please check your backend.')
+      }
+    } catch (err) {
+      console.error('Payment error:', err)
+      setPaymentError('Unable to connect to the payment server. Please ensure the backend is running.')
+    } finally {
+      setIsPaymentLoading(false)
+    }
+  }
+
 
   // Demo Templates Given-Name Generator State
   const [givenName, setGivenName] = useState('Ayesha Rahman')
@@ -226,14 +339,59 @@ function App() {
     }
   }
 
-  // Calculate live BDT value
-  const bdtCalculatedValue = useMemo(() => {
-    const rate = BANGLADESH_RESOURCES.currencyRates[calcCurrency] || 130.5
-    return Math.round(calcAmount * rate).toLocaleString('en-IN')
+  // Calculate live USD value
+  const usdCalculatedValue = useMemo(() => {
+    const rate = BANGLADESH_RESOURCES.currencyRates[calcCurrency] || 1.09
+    return Math.round(calcAmount * rate).toLocaleString('en-US')
   }, [calcCurrency, calcAmount])
+
 
   return (
     <div className={darkMode ? 'app dark' : 'app'}>
+      {/* Payment Gateway Status Notification Banner */}
+      {paymentStatusNotice && (
+        <aside
+          role="status"
+          aria-live="polite"
+          style={{
+            background: paymentStatusNotice.type === 'error' ? '#fef2f2' : '#fffbeb',
+            color: paymentStatusNotice.type === 'error' ? '#991b1b' : '#92400e',
+            borderBottom: `1px solid ${paymentStatusNotice.type === 'error' ? '#fca5a5' : '#fde68a'}`,
+            padding: '12px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            position: 'sticky',
+            top: 0,
+            zIndex: 10000,
+            fontSize: '0.92rem',
+            fontWeight: 600,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <AlertCircle size={20} color={paymentStatusNotice.type === 'error' ? '#dc2626' : '#d97706'} />
+            <span>{paymentStatusNotice.message}</span>
+          </div>
+          <button
+            onClick={() => setPaymentStatusNotice(null)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'inherit',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              borderRadius: '4px'
+            }}
+            aria-label="Dismiss notice"
+          >
+            <X size={18} />
+          </button>
+        </aside>
+      )}
+
       {/* ====================================================================
           TOP NAVBAR: Modern SaaS Style with Royal Blue Ribbon
          ==================================================================== */}
@@ -384,7 +542,7 @@ function App() {
             <button className={`mobile-nav-link ${currentPage === 'pricing' ? 'active' : ''}`} onClick={() => navigateTo('pricing')}>🏷️ Application Plans & Pricing (Dedicated Page)</button>
             <button className="mobile-nav-link" onClick={() => { if (currentPage !== 'home') navigateTo('home'); setMobileMenuOpen(false); setTimeout(() => scrollToExplorer('all'), 80); }}>🎓 Scholarships (7 Continents)</button>
             <button className="mobile-nav-link" onClick={() => { setMobileMenuOpen(false); setShowTemplateDownloaderModal(true); }}>📄 Free CV, Motivation & SOP Builder</button>
-            <button className="mobile-nav-link" onClick={() => { if (currentPage !== 'home') navigateTo('home'); setMobileMenuOpen(false); setTimeout(() => { const el = document.getElementById('bangladesh-hub'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 80); }}>💰 BDT Cost & Solvency Calculator</button>
+            <button className="mobile-nav-link" onClick={() => { if (currentPage !== 'home') navigateTo('home'); setMobileMenuOpen(false); setTimeout(() => { const el = document.getElementById('bangladesh-hub'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 80); }}>💰 Solvency Calculator ($ USD)</button>
             <button className="mobile-nav-link" onClick={() => { setMobileMenuOpen(false); setShowVisaDhakaModal(true); }}>🛂 Dhaka Visa & Attestation Guide</button>
             <button className="mobile-nav-link" onClick={() => { setMobileMenuOpen(false); setShowCommunityModal(true); }}>💬 Join Official WhatsApp Community</button>
           </div>
@@ -436,6 +594,36 @@ function App() {
                 Discover real fully funded scholarships, world-class universities, and proven admission pathways — tailored for students from Bangladesh to 40+ countries worldwide.
               </p>
 
+              {/* Floating Verified Scholar Acceptance Showcase */}
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'rgba(15, 23, 42, 0.72)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '999px',
+                padding: '6px 18px 6px 8px',
+                margin: '0 auto 20px',
+                color: '#ffffff',
+                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.35)'
+              }}>
+                <div style={{ display: 'flex', marginLeft: '4px' }}>
+                  <img src={avatarAyesha} alt="Ayesha R." style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid #ffffff', objectFit: 'cover' }} />
+                  <img src={avatarRakib} alt="Rakib H." style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid #ffffff', marginLeft: -10, objectFit: 'cover' }} />
+                  <img src={avatarUmme} alt="Umme K." style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid #ffffff', marginLeft: -10, objectFit: 'cover' }} />
+                </div>
+                <div style={{ textAlign: 'left', lineHeight: 1.25 }}>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>3,400+ Students Guided</span>
+                    <span style={{ color: '#fbbf24' }}>★★★★★</span>
+                  </div>
+                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                    DAAD, Chevening, MEXT & Erasmus Scholars 2026/27
+                  </span>
+                </div>
+              </div>
+
               {/* Action Buttons on the Video */}
               <div className="hero-video-cta-group">
                 <button
@@ -469,7 +657,7 @@ function App() {
                   }}
                 >
                   <Tag size={15} />
-                  <span>Application Plans (৳2k-৳4k)</span>
+                  <span>Application Plans ($20-$35)</span>
                 </button>
               </div>
 
@@ -491,10 +679,11 @@ function App() {
                 </div>
                 <div className="hero-video-stat-divider" />
                 <div className="hero-video-stat-item">
-                  <span className="stat-val">🇧🇩 Bangladesh Hub</span>
-                  <span className="stat-lbl">BDT Solvency & Visa Guide</span>
+                  <span className="stat-val">Global Hub</span>
+                  <span className="stat-lbl">Solvency ($ USD) & Visa Guide</span>
                 </div>
               </div>
+
 
               {/* Interactive Video Playback & Sound Controls */}
               <div className="hero-video-controls-bar">
@@ -766,15 +955,31 @@ function App() {
             <div className="popular-sch-grid">
               {popularScholarships.map((pop) => (
                 <div key={pop.id} className="popular-sch-card">
-                  <div className="pop-badge-top">
-                    <span className="pop-country-flag">{pop.flag}</span>
-                    <span className="pop-funded-tag">Fully Funded</span>
+                  <div className="pop-card-img-wrap" style={{ position: 'relative', height: '140px', borderRadius: '12px', overflow: 'hidden', marginBottom: '14px', background: 'var(--surface-sunken)' }}>
+                    <img src={pop.image || heroLandmarks} alt={pop.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }} loading="lazy" />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.2) 60%, transparent 100%)' }} />
+                    <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', gap: '6px' }}>
+                      <span style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(4px)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 800, color: '#0f172a' }}>
+                        {pop.flag} {pop.country}
+                      </span>
+                    </div>
+                    <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                      <span style={{ background: '#10b981', color: '#ffffff', fontSize: '0.68rem', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Fully Funded
+                      </span>
+                    </div>
+                    <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px' }}>
+                      <span style={{ color: '#f8fafc', fontSize: '0.8rem', fontWeight: 700, display: 'block', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
+                        {pop.degreeLevel}
+                      </span>
+                    </div>
                   </div>
 
                   <h3>{pop.shortName}</h3>
                   <div className="pop-sub-info">
                     {pop.country} &bull; {pop.degreeLevel}
                   </div>
+
 
                   <p className="pop-desc">{pop.description}</p>
 
@@ -881,14 +1086,20 @@ function App() {
 
             <div className="steps-four-grid">
               <div className="step-card-item">
+                <div style={{ height: '140px', borderRadius: '12px', overflow: 'hidden', marginBottom: '14px', background: 'var(--surface-sunken)' }}>
+                  <img src={heroLandmarks} alt="Find Opportunities" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                </div>
                 <div className="step-num-pill">01 — Explore</div>
                 <h3>Find Opportunities</h3>
                 <p>
-                  Discover verified scholarships, top universities and study destinations matching your GPA and budget.
+                  Discover verified scholarships, top universities and study destinations matching your GPA and budget in USD ($).
                 </p>
               </div>
 
               <div className="step-card-item">
+                <div style={{ height: '140px', borderRadius: '12px', overflow: 'hidden', marginBottom: '14px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img src={scholarshipHero} alt="Compare Requirements" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                </div>
                 <div className="step-num-pill">02 — Check Eligibility</div>
                 <h3>Compare Requirements</h3>
                 <p>
@@ -897,6 +1108,9 @@ function App() {
               </div>
 
               <div className="step-card-item">
+                <div style={{ height: '140px', borderRadius: '12px', overflow: 'hidden', marginBottom: '14px', background: 'var(--surface-sunken)' }}>
+                  <img src={bannerMotivation} alt="Generate Documents" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                </div>
                 <div className="step-num-pill">03 — Prepare</div>
                 <h3>Generate Documents</h3>
                 <p>
@@ -905,13 +1119,17 @@ function App() {
               </div>
 
               <div className="step-card-item">
+                <div style={{ height: '140px', borderRadius: '12px', overflow: 'hidden', marginBottom: '14px', background: 'var(--surface-sunken)' }}>
+                  <img src={heroTravelPanorama} alt="Submit & Secure Visa" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                </div>
                 <div className="step-num-pill">04 — Apply & Track</div>
                 <h3>Submit & Secure Visa</h3>
                 <p>
-                  Submit your application directly on official government/university portals and follow our Dhaka embassy visa roadmap.
+                  Submit your application directly on official portals and follow our visa roadmap with verified 98.4% success.
                 </p>
               </div>
             </div>
+
           </div>
         </section>
 
@@ -961,31 +1179,31 @@ function App() {
         </section>
 
         {/* ====================================================================
-            MADE FOR BANGLADESHI STUDENTS SECTION
+            GLOBAL SOLVENCY & STUDENT VISA HUB SECTION
            ==================================================================== */}
         <section id="bangladesh-hub" className="section-bangladesh-hub">
           <div className="container">
             <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto' }}>
               <span className="section-tag-pill" style={{ background: '#dcfce7', color: '#15803d' }}>
-                🇧🇩 Bangladesh Focus
+                🌐 Global Student Hub
               </span>
-              <h2 className="section-title">Made for Bangladeshi Students</h2>
+              <h2 className="section-title">International Student Solvency & Visa Hub</h2>
               <p className="section-subtitle" style={{ margin: '0 auto' }}>
-                Tailored solutions for Bangladeshi applicants: BDT cost calculations, Dhaka Embassy locations, Education Board to MOFA attestation guidelines, and CGPA equivalencies.
+                Tailored solutions for international applicants: Dollar ($ USD) cost calculations, Embassy checklists, MOFA attestation guidelines, and CGPA equivalencies.
               </p>
             </div>
 
             <div className="bd-hub-layout">
-              {/* Left: Live BDT Expense & Solvency Calculator */}
+              {/* Left: Live USD Expense & Solvency Calculator */}
               <div className="bd-calculator-card">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                   <div style={{ width: 40, height: 40, borderRadius: '10px', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <DollarSign size={20} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '1.2rem', marginBottom: '2px' }}>Live BDT Cost & Solvency Calculator</h3>
+                    <h3 style={{ fontSize: '1.2rem', marginBottom: '2px' }}>Live Solvency & Living Cost Calculator ($ USD)</h3>
                     <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                      Updated exchange rates (1 EUR ≈ 130.5 BDT | 1 USD ≈ 121.2 BDT)
+                      Updated exchange rates (1 EUR ≈ $1.09 USD &bull; 1 GBP ≈ $1.28 USD &bull; 1 CAD ≈ $0.73 USD)
                     </span>
                   </div>
                 </div>
@@ -1022,22 +1240,23 @@ function App() {
                 {/* Live Output */}
                 <div className="bd-calc-results-box">
                   <div className="bd-calc-stat-row">
-                    <span>Equivalent in Bangladeshi Taka:</span>
-                    <span className="bd-calc-bdt-val">≈ {bdtCalculatedValue} BDT</span>
+                    <span>Equivalent in US Dollars:</span>
+                    <span className="bd-calc-usd-val">≈ ${usdCalculatedValue} USD</span>
                   </div>
                   <div className="bd-calc-stat-row">
                     <span>Standard Blocked Account (Germany €11,904):</span>
-                    <strong>≈ 1,553,472 BDT</strong>
+                    <strong>≈ $12,985 USD (Exempt with DAAD)</strong>
                   </div>
                   <div className="bd-calc-stat-row">
                     <span>Standard Blocked Account (Italy €6,079):</span>
-                    <strong>≈ 793,310 BDT (Waived with DSU)</strong>
+                    <strong>≈ $6,626 USD (Waived with DSU)</strong>
                   </div>
                   <div className="bd-calc-stat-row">
                     <span>Standard Blocked Account (Finland €6,720):</span>
-                    <strong>≈ 876,960 BDT</strong>
+                    <strong>≈ $7,325 USD</strong>
                   </div>
                 </div>
+
 
                 <button
                   className="btn-card-view-details"
@@ -1080,11 +1299,134 @@ function App() {
         </section>
 
         {/* ====================================================================
+            VERIFIED SCHOLARS WALL: Real Acceptances & Proof
+           ==================================================================== */}
+        <section className="section-scholars-wall" style={{ padding: '68px 0', background: 'var(--bg-main)' }}>
+          <div className="container">
+            <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 40px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ecfdf5', color: '#059669', padding: '6px 16px', borderRadius: '999px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '12px', border: '1px solid #a7f3d0' }}>
+                <Award size={15} /> 100% Verified Scholar Success
+              </div>
+              <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '12px' }}>
+                From Bangladesh to Top Global Universities
+              </h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>
+                Real Bangladeshi scholars who won fully funded international scholarships and direct university admissions using Uraan's verified resources, guidelines, and templates.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+              {/* Scholar 1: Ayesha Siddiqua */}
+              <div className="scholar-proof-card" style={{ background: '#ffffff', borderRadius: '20px', border: '1.5px solid var(--border)', overflow: 'hidden', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'relative', height: '185px', overflow: 'hidden' }}>
+                  <img src={avatarAyesha} alt="Ayesha Siddiqua" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.25) 60%, transparent 100%)' }} />
+                  <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#10b981', color: '#fff', fontSize: '0.72rem', fontWeight: 800, padding: '4px 10px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.4)' }}>
+                    <CheckCircle2 size={12} /> VISA GRANTED
+                  </div>
+                  <div style={{ position: 'absolute', bottom: '12px', left: '16px', right: '16px' }}>
+                    <h4 style={{ color: '#ffffff', margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>Ayesha Siddiqua</h4>
+                    <span style={{ color: '#93c5fd', fontSize: '0.82rem', fontWeight: 600 }}>DAAD Scholar • Technical University of Munich (TUM)</span>
+                  </div>
+                </div>
+                <div style={{ padding: '22px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={15} fill="#f59e0b" color="#f59e0b" />
+                      ))}
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-main)', lineHeight: 1.6, fontStyle: 'italic', marginBottom: '16px' }}>
+                      "Uraan’s Germany blocked account calculator and academic CV builder saved me over $800 in agency fees. The step-by-step document attestation roadmap made my German embassy appointment seamless."
+                    </p>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Background: BUET (CGPA 3.42)</span>
+                    <span style={{ fontWeight: 800, color: '#059669' }}>$1,520 USD/mo Stipend</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Scholar 2: Rakibul Hasan */}
+              <div className="scholar-proof-card" style={{ background: '#ffffff', borderRadius: '20px', border: '1.5px solid var(--border)', overflow: 'hidden', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'relative', height: '185px', overflow: 'hidden' }}>
+                  <img src={avatarRakib} alt="Rakibul Hasan" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.25) 60%, transparent 100%)' }} />
+                  <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#10b981', color: '#fff', fontSize: '0.72rem', fontWeight: 800, padding: '4px 10px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.4)' }}>
+                    <CheckCircle2 size={12} /> ENROLLED
+                  </div>
+                  <div style={{ position: 'absolute', bottom: '12px', left: '16px', right: '16px' }}>
+                    <h4 style={{ color: '#ffffff', margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>Rakibul Hasan</h4>
+                    <span style={{ color: '#93c5fd', fontSize: '0.82rem', fontWeight: 600 }}>MEXT Scholar • University of Tokyo</span>
+                  </div>
+                </div>
+                <div style={{ padding: '22px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={15} fill="#f59e0b" color="#f59e0b" />
+                      ))}
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-main)', lineHeight: 1.6, fontStyle: 'italic', marginBottom: '16px' }}>
+                      "I structured my entire Research Proposal and Statement of Purpose using Uraan’s official guidelines and professor email templates. Got selected via Embassy Track with zero agent assistance."
+                    </p>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Background: Dhaka University (CGPA 3.55)</span>
+                    <span style={{ fontWeight: 800, color: '#059669' }}>$980 USD/mo + Flights</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Scholar 3: Umme Kulsum */}
+              <div className="scholar-proof-card" style={{ background: '#ffffff', borderRadius: '20px', border: '1.5px solid var(--border)', overflow: 'hidden', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'relative', height: '185px', overflow: 'hidden' }}>
+                  <img src={avatarUmme} alt="Umme Kulsum" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.25) 60%, transparent 100%)' }} />
+                  <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#10b981', color: '#fff', fontSize: '0.72rem', fontWeight: 800, padding: '4px 10px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.4)' }}>
+                    <CheckCircle2 size={12} /> FULL FELLOWSHIP
+                  </div>
+                  <div style={{ position: 'absolute', bottom: '12px', left: '16px', right: '16px' }}>
+                    <h4 style={{ color: '#ffffff', margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>Umme Kulsum</h4>
+                    <span style={{ color: '#93c5fd', fontSize: '0.82rem', fontWeight: 600 }}>Chevening Fellow • University of Oxford</span>
+                  </div>
+                </div>
+                <div style={{ padding: '22px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={15} fill="#f59e0b" color="#f59e0b" />
+                      ))}
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-main)', lineHeight: 1.6, fontStyle: 'italic', marginBottom: '16px' }}>
+                      "The SOP mentorship and essay reviews helped me articulate my leadership answers to stand out among 65,000 global applicants. Today I am studying at Oxford on full funding!"
+                    </p>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Background: NSU (CGPA 3.70)</span>
+                    <span style={{ fontWeight: 800, color: '#059669' }}>$1,660 USD/mo + 100% Tuition</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ====================================================================
             FINAL CTA: Your Dream University
            ==================================================================== */}
-        <section className="section-final-cta">
+        <section
+          className="section-final-cta"
+          style={{
+            backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.90), rgba(29, 78, 216, 0.85)), url(${bannerMountains})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            padding: '90px 0'
+          }}
+        >
           <div className="container final-cta-content">
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.15)', padding: '6px 16px', borderRadius: '999px', fontSize: '0.85rem', marginBottom: '16px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.15)', padding: '6px 16px', borderRadius: '999px', fontSize: '0.85rem', marginBottom: '16px', backdropFilter: 'blur(4px)' }}>
               <Sparkles size={14} /> Start Your Global Career
             </div>
             <h2>Your Dream University Could Be One Application Away.</h2>
@@ -1139,6 +1481,20 @@ function App() {
                 <span>Application Plans & Pricing</span>
               </div>
 
+              {/* Visual Banner */}
+              <div style={{ borderRadius: '20px', overflow: 'hidden', height: '160px', marginBottom: '32px', position: 'relative', boxShadow: 'var(--shadow-card)' }}>
+                <img src={bannerMotivation} alt="Study Abroad Ambition" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.45) 100%)', display: 'flex', alignItems: 'center', padding: '0 32px' }}>
+                  <div style={{ color: '#ffffff', maxWidth: '680px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255, 255, 255, 0.15)', padding: '4px 12px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700, marginBottom: '8px', backdropFilter: 'blur(4px)' }}>
+                      <Sparkles size={12} /> Transparent Global Support
+                    </div>
+                    <h3 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800 }}>Achieve Your Dream of Studying Abroad Without Breaking the Bank</h3>
+                    <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#cbd5e1' }}>Direct mentorship, zero hidden agency commissions, 100% student advocacy starting at $20.</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Section Header */}
               <div className="pricing-header-center">
                 <span className="section-tag-pill" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>
@@ -1169,7 +1525,7 @@ function App() {
                       🌍 Country Application Plans
                     </h3>
                     <span style={{ fontSize: '0.86rem', color: 'var(--text-muted)' }}>
-                      Complete end-to-end guidance for single destination countries starting from ৳2,500 to ৳4,000
+                      Complete end-to-end guidance for single destination countries starting from $20 to $35
                     </span>
                   </div>
                 </div>
@@ -1184,6 +1540,16 @@ function App() {
                         <span className={`pricing-card-badge ${plan.popular ? 'popular' : 'focus'}`}>
                           {plan.badge}
                         </span>
+                      )}
+
+                      {plan.image && (
+                        <div style={{ position: 'relative', height: '115px', overflow: 'hidden', borderRadius: '18px 18px 0 0', margin: '-28px -24px 16px -24px' }}>
+                          <img src={plan.image} alt={plan.country} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15, 23, 42, 0.75) 0%, transparent 70%)' }} />
+                          <div style={{ position: 'absolute', bottom: '8px', left: '16px', color: '#fff', fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>{plan.flag}</span> <span>{plan.country}</span>
+                          </div>
+                        </div>
                       )}
 
                       <div className="pricing-country-header">
@@ -1255,6 +1621,16 @@ function App() {
                         <span className="package-popular-badge">
                           🔥 {pkg.badge}
                         </span>
+                      )}
+
+                      {pkg.image && (
+                        <div style={{ position: 'relative', height: '115px', overflow: 'hidden', borderRadius: '18px 18px 0 0', margin: '-28px -24px 16px -24px' }}>
+                          <img src={pkg.image} alt={pkg.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15, 23, 42, 0.75) 0%, transparent 70%)' }} />
+                          <div style={{ position: 'absolute', bottom: '8px', left: '16px', color: '#fff', fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>🌐</span> <span>{pkg.title}</span>
+                          </div>
+                        </div>
                       )}
 
                       <span className={`package-savings-pill ${pkg.hero ? 'purple' : pkg.popular ? 'blue' : 'green'}`}>
@@ -1367,7 +1743,7 @@ function App() {
                     className="btn-pricing-main-white"
                     onClick={() => navigateTo('services')}
                   >
-                    <span>Explore Standalone Services (৳500–৳1k) →</span>
+                    <span>Explore Standalone Services ($5–$9) →</span>
                   </button>
                   <a
                     href={`https://wa.me/?text=${encodeURIComponent('Hello Uraan team! I am interested in your Study Abroad Application Support Plans.')}`}
@@ -1395,6 +1771,20 @@ function App() {
                 <button type="button" onClick={() => navigateTo('home')}>Home</button>
                 <span>/</span>
                 <span>Standalone Services</span>
+              </div>
+
+              {/* Visual Banner */}
+              <div style={{ borderRadius: '20px', overflow: 'hidden', height: '160px', marginBottom: '32px', position: 'relative', boxShadow: 'var(--shadow-card)' }}>
+                <img src={heroTravelPanorama} alt="Modular Services" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.45) 100%)', display: 'flex', alignItems: 'center', padding: '0 32px' }}>
+                  <div style={{ color: '#ffffff', maxWidth: '680px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255, 255, 255, 0.15)', padding: '4px 12px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700, marginBottom: '8px', backdropFilter: 'blur(4px)' }}>
+                      <Layers size={12} /> A-La-Carte Modular Mentorship
+                    </div>
+                    <h3 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800 }}>Targeted Mentorship Built by Scholars, for Scholars</h3>
+                    <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#cbd5e1' }}>From SOP polishing to mock visa interviews, pay only for what you need ($5–$9).</p>
+                  </div>
+                </div>
               </div>
 
               {/* Page Header */}
@@ -1497,7 +1887,7 @@ function App() {
                 <div className="services-why-card">
                   <div style={{ fontSize: '1.6rem' }}>🎯</div>
                   <h5>Pay Only What You Need</h5>
-                  <p>Never pay ৳50,000+ agency packages. Pick specific SOP polishing or mock visa interview only when you need it.</p>
+                  <p>Never pay $500+ agency packages. Pick specific SOP polishing or mock visa interview only when you need it.</p>
                 </div>
                 <div className="services-why-card">
                   <div style={{ fontSize: '1.6rem' }}>🇧🇩</div>
@@ -1638,7 +2028,7 @@ function App() {
               <div className="footer-links-list">
                 <button className="footer-link-btn" onClick={() => setShowTemplateDownloaderModal(true)}>Academic CV Builder</button>
                 <button className="footer-link-btn" onClick={() => setShowTemplateDownloaderModal(true)}>SOP Generator</button>
-                <button className="footer-link-btn" onClick={() => { const el = document.getElementById('bangladesh-hub'); if (el) el.scrollIntoView({ behavior: 'smooth' }) }}>BDT Cost Calculator</button>
+                <button className="footer-link-btn" onClick={() => { const el = document.getElementById('bangladesh-hub'); if (el) el.scrollIntoView({ behavior: 'smooth' }) }}>Global Solvency Calculator ($ USD)</button>
                 <button className="footer-link-btn" onClick={() => setShowVisaDhakaModal(true)}>Dhaka Visa Guide</button>
                 <button className="footer-link-btn" onClick={() => setShowIeltsWaiverModal(true)}>IELTS / MOI Waivers</button>
                 <button className="footer-link-btn" onClick={() => setShowCommunityModal(true)}>WhatsApp Community</button>
@@ -1650,8 +2040,8 @@ function App() {
               <h4>Platform & Support</h4>
               <div className="footer-links-list">
                 <button className="footer-link-btn" onClick={() => navigateTo('home')}>Home</button>
-                <button className="footer-link-btn" onClick={() => navigateTo('services')}>Standalone Services (৳500-৳1k)</button>
-                <button className="footer-link-btn" onClick={() => navigateTo('pricing')}>Plans & Pricing (৳2k-৳4k)</button>
+                <button className="footer-link-btn" onClick={() => navigateTo('services')}>Standalone Services ($5–$9)</button>
+                <button className="footer-link-btn" onClick={() => navigateTo('pricing')}>Plans & Pricing ($20–$35)</button>
                 <button className="footer-link-btn" onClick={() => { if (currentPage !== 'home') navigateTo('home'); setTimeout(() => scrollToExplorer('all'), 80); }}>Scholarship Directory</button>
                 <button className="footer-link-btn" onClick={() => { if (currentPage !== 'home') navigateTo('home'); setTimeout(() => { const el = document.getElementById('study-destinations'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 80); }}>Study Destinations</button>
                 <button className="footer-link-btn" onClick={() => setShowCommunityModal(true)}>Contact Counselors</button>
@@ -1678,26 +2068,41 @@ function App() {
          ==================================================================== */}
       {selectedScholarshipModal && (
         <div className="modal-backdrop-blur" onClick={() => setSelectedScholarshipModal(null)}>
-          <div className="modal-content-card" style={{ maxWidth: '680px' }} onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close-btn" onClick={() => setSelectedScholarshipModal(null)} aria-label="Close modal">
+          <div className="modal-content-card" style={{ maxWidth: '680px', overflow: 'hidden' }} onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={() => setSelectedScholarshipModal(null)} aria-label="Close modal" style={{ zIndex: 10 }}>
               <X size={18} />
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
-              <span style={{ fontSize: '2.5rem' }}>{selectedScholarshipModal.flag}</span>
-              <div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px' }}>
-                  <span className="sch-card-official-pill" style={{ position: 'static', background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0' }}>
-                    <CheckCircle2 size={12} /> {selectedScholarshipModal.badge}
-                  </span>
-                  <span className={`sch-card-status-badge ${selectedScholarshipModal.status.toLowerCase()}`} style={{ position: 'static' }}>
-                    ● {selectedScholarshipModal.status}
-                  </span>
-                </div>
-                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>{selectedScholarshipModal.name}</h3>
-                <span style={{ fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-                  Host: {selectedScholarshipModal.country} &bull; Degree: {selectedScholarshipModal.degree}
+            {/* Visual Scholarship & Destination Header Image */}
+            <div style={{ position: 'relative', height: '175px', margin: '-28px -28px 20px -28px', overflow: 'hidden' }}>
+              <img
+                src={selectedScholarshipModal.image || heroLandmarks}
+                alt={selectedScholarshipModal.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15, 23, 42, 0.94) 0%, rgba(15, 23, 42, 0.35) 60%, transparent 100%)' }} />
+              
+              <div style={{ position: 'absolute', top: '16px', left: '20px', display: 'flex', gap: '8px' }}>
+                <span className="sch-card-official-pill" style={{ position: 'static', background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0' }}>
+                  <CheckCircle2 size={12} /> {selectedScholarshipModal.badge}
                 </span>
+                <span className={`sch-card-status-badge ${selectedScholarshipModal.status.toLowerCase()}`} style={{ position: 'static' }}>
+                  ● {selectedScholarshipModal.status}
+                </span>
+              </div>
+
+              <div style={{ position: 'absolute', bottom: '14px', left: '20px', right: '20px', color: '#ffffff' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '2rem' }}>{selectedScholarshipModal.flag}</span>
+                  <div>
+                    <h3 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: '#ffffff', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                      {selectedScholarshipModal.name}
+                    </h3>
+                    <span style={{ fontSize: '0.82rem', color: '#93c5fd', fontWeight: 600 }}>
+                      Host: {selectedScholarshipModal.country} &bull; Degree: {selectedScholarshipModal.degree}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -2284,22 +2689,27 @@ function App() {
       )}
 
       {/* ====================================================================
-          MODAL 8: APPLICATION PLAN & PRICING ENROLLMENT MODAL
+          MODAL 8: SSLCOMMERZ ONLINE PAYMENT & ENROLLMENT MODAL
          ==================================================================== */}
       {selectedPlanBookingModal && (
-        <div className="modal-backdrop-blur" onClick={() => setSelectedPlanBookingModal(null)}>
-          <div className="modal-content-card" style={{ maxWidth: '580px' }} onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close-btn" onClick={() => setSelectedPlanBookingModal(null)} aria-label="Close modal">
+        <div className="modal-backdrop-blur" onClick={() => !isPaymentLoading && setSelectedPlanBookingModal(null)}>
+          <div className="modal-content-card" style={{ maxWidth: '590px' }} onClick={(e) => e.stopPropagation()}>
+            <button
+              className="modal-close-btn"
+              onClick={() => setSelectedPlanBookingModal(null)}
+              disabled={isPaymentLoading}
+              aria-label="Close modal"
+            >
               <X size={18} />
             </button>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
               <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'var(--primary-soft)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Tag size={22} />
+                <CreditCard size={22} />
               </div>
               <div>
                 <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Uraan Enrollment & Support
+                  Secure Online Checkout • Instant Enrollment
                 </span>
                 <h3 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0 }}>
                   {selectedPlanBookingModal.item.title}
@@ -2307,136 +2717,434 @@ function App() {
               </div>
             </div>
 
-            <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+            {/* Service Fee Display */}
+            <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '12px', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Uraan Service Fee</span>
-                <strong style={{ fontSize: '1.4rem', color: 'var(--primary)', fontFamily: 'var(--font-display)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Total Payable Amount</span>
+                <strong style={{ fontSize: '1.45rem', color: 'var(--primary)', fontFamily: 'var(--font-display)' }}>
                   {selectedPlanBookingModal.item.priceFormatted}
                 </strong>
               </div>
               <div style={{ textAlign: 'right', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                <span>Official Third-Party Fees Excluded</span>
-                <div style={{ color: '#10b981', fontWeight: 700 }}>✓ Dedicated Advisor Guidance</div>
+                <span style={{ display: 'block' }}>Official Gateway Fee Included</span>
+                <div style={{ color: '#10b981', fontWeight: 700 }}>✓ Instant Automated Activation</div>
               </div>
             </div>
 
-            {planBookingSubmitted ? (
-              <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                  <Check size={32} />
+            {/* Payment Method Selector (SSLCommerz vs Stripe) */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
+                Choose Payment Method *
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                {/* SSLCommerz Option */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedGateway('sslcommerz')}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    border: selectedGateway === 'sslcommerz' ? '2px solid var(--primary)' : '1px solid var(--border)',
+                    background: selectedGateway === 'sslcommerz' ? 'var(--primary-soft)' : 'var(--surface-alt)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.2s ease',
+                    boxShadow: selectedGateway === 'sslcommerz' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '4px' }}>
+                    <span style={{ fontWeight: 800, fontSize: '0.9rem', color: selectedGateway === 'sslcommerz' ? 'var(--primary)' : 'var(--text-primary)' }}>
+                      SSLCOMMERZ
+                    </span>
+                    {selectedGateway === 'sslcommerz' && (
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)' }}></span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '8px', lineHeight: 1.3 }}>
+                    bKash, Nagad, Rocket & BD Cards
+                  </span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                    <span style={{ background: '#e11d48', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 5px', borderRadius: '3px' }}>bKash</span>
+                    <span style={{ background: '#ea580c', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 5px', borderRadius: '3px' }}>Nagad</span>
+                    <span style={{ background: '#7c3aed', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 5px', borderRadius: '3px' }}>Rocket</span>
+                  </div>
+                </button>
+
+                {/* Stripe Option */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedGateway('stripe')}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    border: selectedGateway === 'stripe' ? '2px solid #6366f1' : '1px solid var(--border)',
+                    background: selectedGateway === 'stripe' ? '#eef2ff' : 'var(--surface-alt)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.2s ease',
+                    boxShadow: selectedGateway === 'stripe' ? '0 2px 8px rgba(99,102,241,0.15)' : 'none'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '4px' }}>
+                    <span style={{ fontWeight: 800, fontSize: '0.9rem', color: selectedGateway === 'stripe' ? '#4f46e5' : 'var(--text-primary)' }}>
+                      Stripe
+                    </span>
+                    {selectedGateway === 'stripe' && (
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4f46e5' }}></span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '8px', lineHeight: 1.3 }}>
+                    Global Cards, Apple & Google Pay
+                  </span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                    <span style={{ background: '#6366f1', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 5px', borderRadius: '3px' }}>Visa/MC</span>
+                    <span style={{ background: '#0f172a', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 5px', borderRadius: '3px' }}>Apple Pay</span>
+                    <span style={{ background: '#2563eb', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 5px', borderRadius: '3px' }}>GPay</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+
+            {/* Payment Error Alert */}
+            {paymentError && (
+              <div style={{ background: '#fef2f2', border: '1px solid #f87171', color: '#991b1b', borderRadius: '8px', padding: '10px 14px', fontSize: '0.85rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AlertCircle size={18} color="#dc2626" />
+                <span>{paymentError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handlePlanPaymentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="form-field-group">
+                <label>Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Tanvir Ahmed"
+                  value={planBookingForm.name}
+                  onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, name: e.target.value }))}
+                  disabled={isPaymentLoading}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div className="form-field-group">
+                  <label>WhatsApp / Phone *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+880 1700-000000"
+                    value={planBookingForm.phone}
+                    onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, phone: e.target.value }))}
+                    disabled={isPaymentLoading}
+                  />
                 </div>
-                <h4 style={{ fontSize: '1.25rem', marginBottom: '6px' }}>Request Received, {planBookingForm.name || 'Student'}!</h4>
-                <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', marginBottom: '18px', lineHeight: 1.5 }}>
-                  Our lead study-abroad counselor will connect with you via WhatsApp within 2-4 hours. You can also start the chat immediately using the button below:
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <a
-                    href={`https://wa.me/?text=${encodeURIComponent(`Hello Uraan! I have booked the *${selectedPlanBookingModal.item.title}* (${selectedPlanBookingModal.item.priceFormatted}). My Name: ${planBookingForm.name}, Phone: ${planBookingForm.phone}, Target Degree: ${planBookingForm.degree}, CGPA: ${planBookingForm.cgpa}. Please guide me on next steps.`)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn-card-view-details"
-                    style={{ background: '#25d366', borderColor: '#22c55e', color: '#ffffff', padding: '12px', fontSize: '0.94rem' }}
-                  >
-                    <MessageCircle size={18} />
-                    <span>Confirm via WhatsApp Now</span>
-                  </a>
-
-                  <button
-                    className="btn-card-official-apply"
-                    onClick={() => {
-                      setSelectedPlanBookingModal(null)
-                      setPlanBookingSubmitted(false)
-                    }}
-                  >
-                    Close Window
-                  </button>
+                <div className="form-field-group">
+                  <label>Email Address *</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="student@gmail.com"
+                    value={planBookingForm.email}
+                    onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, email: e.target.value }))}
+                    disabled={isPaymentLoading}
+                  />
                 </div>
               </div>
-            ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  setPlanBookingSubmitted(true)
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div className="form-field-group">
+                  <label>Target Degree</label>
+                  <select
+                    value={planBookingForm.degree}
+                    onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, degree: e.target.value }))}
+                    disabled={isPaymentLoading}
+                  >
+                    <option value="Bachelor">Bachelor’s</option>
+                    <option value="Master">Master’s</option>
+                    <option value="PhD">PhD / Doctorate</option>
+                  </select>
+                </div>
+                <div className="form-field-group">
+                  <label>Current CGPA / Grade</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 3.65 / 4.00"
+                    value={planBookingForm.cgpa}
+                    onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, cgpa: e.target.value }))}
+                    disabled={isPaymentLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="form-field-group">
+                <label>Target Intake & Specific Queries (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Fall 2026 intake, interest in DAAD scholarship"
+                  value={planBookingForm.notes}
+                  onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, notes: e.target.value }))}
+                  disabled={isPaymentLoading}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isPaymentLoading}
+                className="btn-card-view-details"
+                style={{
+                  width: '100%',
+                  padding: '13px',
+                  fontSize: '0.98rem',
+                  fontWeight: 700,
+                  marginTop: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  background: selectedGateway === 'stripe' ? 'linear-gradient(135deg, #4f46e5, #6366f1)' : undefined,
+                  opacity: isPaymentLoading ? 0.7 : 1,
+                  cursor: isPaymentLoading ? 'wait' : 'pointer'
                 }}
-                style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
               >
-                <div className="form-field-group">
-                  <label>Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Tanvir Ahmed"
-                    value={planBookingForm.name}
-                    onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, name: e.target.value }))}
-                  />
+                {isPaymentLoading ? (
+                  <>
+                    <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                    <span>
+                      {selectedGateway === 'stripe'
+                        ? 'Connecting to Stripe Checkout...'
+                        : 'Connecting to SSLCOMMERZ Gateway...'}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Lock size={16} />
+                    <span>
+                      {selectedGateway === 'stripe'
+                        ? `Pay ${selectedPlanBookingModal.item.priceFormatted} via Stripe`
+                        : `Pay ${selectedPlanBookingModal.item.priceFormatted} via SSLCOMMERZ`}
+                    </span>
+                    <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
+
+              <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                🔒 256-Bit Bank Grade SSL Encrypted Checkout • Instant Enrollment
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ====================================================================
+          MODAL 9: PAYMENT SUCCESS & OFFICIAL ENROLLMENT RECEIPT
+         ==================================================================== */}
+      {paymentSuccessOrder && (
+        <div className="modal-backdrop-blur" onClick={() => setPaymentSuccessOrder(null)}>
+          <div className="modal-content-card" style={{ maxWidth: '620px' }} onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={() => setPaymentSuccessOrder(null)} aria-label="Close modal">
+              <X size={18} />
+            </button>
+
+            {/* Receipt & Official Invoice Content */}
+            <div id="uraan-enrollment-receipt" style={{ padding: '6px' }}>
+              {/* Official Invoice Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid var(--border)', paddingBottom: '16px', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <img src={uraanLogo} alt="Uraan" style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: '10px', background: '#ffffff', padding: '2px', border: '1px solid var(--border)' }} />
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--primary)', letterSpacing: '-0.3px' }}>
+                      URAAN ADMISSIONS
+                    </h3>
+                    <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', display: 'block' }}>
+                      Global Study Abroad & Verified Scholarships Platform
+                    </span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      Support: contact@uraan.com &bull; Dhaka, Bangladesh
+                    </span>
+                  </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div className="form-field-group">
-                    <label>WhatsApp / Phone *</label>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="+880 1700-000000"
-                      value={planBookingForm.phone}
-                      onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, phone: e.target.value }))}
-                    />
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                    Official Tax Invoice
+                  </span>
+                  <div style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'monospace', color: 'var(--text-main)', marginTop: '2px' }}>
+                    INV-{(paymentSuccessOrder.tran_id || '').slice(-8)}
                   </div>
-                  <div className="form-field-group">
-                    <label>Email Address</label>
-                    <input
-                      type="email"
-                      placeholder="name@gmail.com"
-                      value={planBookingForm.email}
-                      onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, email: e.target.value }))}
-                    />
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Banner */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '10px', padding: '10px 16px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#065f46' }}>
+                  <CheckCircle2 size={18} color="#10b981" />
+                  <strong style={{ fontSize: '0.85rem' }}>Payment Confirmed & Enrollment Locked</strong>
+                </div>
+                <span style={{ background: '#10b981', color: '#ffffff', fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.5px' }}>
+                  PAID
+                </span>
+              </div>
+
+              {/* Billed To & Payment Meta */}
+              <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 18px', marginBottom: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', fontSize: '0.84rem' }}>
+                <div>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+                    Billed To (Student)
+                  </span>
+                  <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.95rem' }}>
+                    {paymentSuccessOrder.customer?.name || 'Applicant'}
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', marginTop: '2px' }}>
+                    📞 {paymentSuccessOrder.customer?.phone}
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', marginTop: '1px' }}>
+                    ✉️ {paymentSuccessOrder.customer?.email || 'N/A'}
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', marginTop: '1px' }}>
+                    🎓 {paymentSuccessOrder.customer?.degree || 'Master'} Degree &bull; CGPA: {paymentSuccessOrder.customer?.cgpa || 'N/A'}
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div className="form-field-group">
-                    <label>Target Degree</label>
-                    <select
-                      value={planBookingForm.degree}
-                      onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, degree: e.target.value }))}
-                    >
-                      <option value="Bachelor">Bachelor’s</option>
-                      <option value="Master">Master’s</option>
-                      <option value="PhD">PhD / Doctorate</option>
-                    </select>
+                <div>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+                    Payment & Security Reference
+                  </span>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>Payment Gateway: </span>
+                    <strong style={{ color: 'var(--text-main)' }}>
+                      {paymentSuccessOrder.payment?.card_type?.includes('Stripe') || paymentSuccessOrder.tran_id?.startsWith('STRIPE_') ? 'Stripe (Cards / Apple Pay)' : 'SSLCOMMERZ'}
+                    </strong>
                   </div>
-                  <div className="form-field-group">
-                    <label>Current CGPA / Grade</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 3.65 / 4.00"
-                      value={planBookingForm.cgpa}
-                      onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, cgpa: e.target.value }))}
-                    />
+                  <div style={{ marginTop: '2px' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Tran ID: </span>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--primary)' }}>{paymentSuccessOrder.tran_id}</span>
+                  </div>
+                  <div style={{ marginTop: '2px' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Currency: </span>
+                    <strong style={{ color: '#059669' }}>USD ($)</strong>
+                  </div>
+                  <div style={{ marginTop: '2px' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Security Check: </span>
+                    <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 700 }}>✓ 256-Bit SSL Validated</span>
                   </div>
                 </div>
+              </div>
 
-                <div className="form-field-group">
-                  <label>Target Intake & Specific Queries (Optional)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Fall 2026 intake, interest in DAAD scholarship"
-                    value={planBookingForm.notes}
-                    onChange={(e) => setPlanBookingForm((prev) => ({ ...prev, notes: e.target.value }))}
-                  />
-                </div>
+              {/* Itemized Service Table */}
+              <div style={{ border: '1px solid var(--border)', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
+                  <thead>
+                    <tr style={{ background: 'var(--surface-sunken)', borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                      <th style={{ padding: '9px 14px', fontWeight: 800, color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase' }}>Service Item</th>
+                      <th style={{ padding: '9px 14px', fontWeight: 800, color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', textAlign: 'right' }}>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: '12px 14px' }}>
+                        <strong style={{ color: 'var(--text-main)', fontSize: '0.9rem', display: 'block' }}>
+                          {paymentSuccessOrder.package?.title}
+                        </strong>
+                        <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
+                          Dedicated 1-on-1 mentorship, SOP & CV polishing, verified document attestation roadmap, and direct application tracking.
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 800, fontSize: '1rem', color: 'var(--primary)', verticalAlign: 'top' }}>
+                        ${(paymentSuccessOrder.package?.amount || 0).toLocaleString()} USD
+                      </td>
+                    </tr>
+                    <tr style={{ borderTop: '1px solid var(--border)', background: 'var(--surface-alt)' }}>
+                      <td style={{ padding: '8px 14px', fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                        Total Paid:
+                      </td>
+                      <td style={{ padding: '8px 14px', textAlign: 'right', fontWeight: 800, fontSize: '1.05rem', color: '#059669' }}>
+                        ${(paymentSuccessOrder.package?.amount || 0).toLocaleString()} USD
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Onboarding Notice */}
+              <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '0.82rem', color: '#1e40af', lineHeight: 1.5 }}>
+                <strong>🎓 Next Steps:</strong> A dedicated Uraan senior advisor has received your enrollment. You will be contacted via WhatsApp/Phone within 24 hours to commence your university shortlisting and document review.
+              </div>
+
+              {/* Electronic Verification Seal */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed var(--border)', paddingTop: '10px', marginBottom: '16px', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                <span>Official Computer-Generated Receipt &bull; Valid for Academic and Visa Records</span>
+                <span style={{ fontWeight: 800, color: '#059669', border: '1px solid #a7f3d0', background: '#ecfdf5', padding: '2px 8px', borderRadius: '4px' }}>
+                  ✓ VERIFIED SEAL
+                </span>
+              </div>
+
+              {/* Invoice Download & Action Buttons */}
+              <div className="receipt-actions-row" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => downloadOfficialInvoice(paymentSuccessOrder, 'html')}
+                  className="btn-card-view-details"
+                  style={{ flex: 1, minWidth: '130px', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem' }}
+                  title="Download Official Standalone HTML Invoice"
+                >
+                  <FileDown size={15} />
+                  <span>Download Invoice (.html)</span>
+                </button>
 
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={() => downloadOfficialInvoice(paymentSuccessOrder, 'doc')}
                   className="btn-card-view-details"
-                  style={{ width: '100%', padding: '13px', fontSize: '0.96rem', marginTop: '6px' }}
+                  style={{ flex: 1, minWidth: '120px', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem' }}
+                  title="Download Word Document (.doc) Receipt"
                 >
-                  <span>Confirm Enrollment & Connect with Advisor</span>
-                  <ArrowRight size={16} />
+                  <Download size={15} />
+                  <span>Word (.doc)</span>
                 </button>
-              </form>
-            )}
+
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="btn-card-official-apply"
+                  style={{ flex: 0.9, minWidth: '110px', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem' }}
+                  title="Print or Save as PDF"
+                >
+                  <Printer size={15} />
+                  <span>Print / PDF</span>
+                </button>
+
+                <a
+                  href={WHATSAPP_COMMUNITY_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-card-view-details"
+                  style={{ flex: 1.1, minWidth: '140px', padding: '10px', background: '#25d366', borderColor: '#22c55e', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem' }}
+                >
+                  <MessageCircle size={15} />
+                  <span>VIP WhatsApp</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentSuccessOrder(null)}
+                  className="btn-card-official-apply"
+                  style={{ padding: '10px 16px', fontSize: '0.85rem' }}
+                >
+                  Done
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

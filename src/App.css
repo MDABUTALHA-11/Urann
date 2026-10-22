@@ -1903,6 +1903,7 @@ img {
   border-bottom: none;
 }
 
+.bd-calc-usd-val,
 .bd-calc-bdt-val {
   font-size: 1.1rem;
   font-weight: 800;
@@ -2608,6 +2609,7 @@ img {
   padding: 3px 9px;
   border-radius: 999px;
   letter-spacing: 0.5px;
+  z-index: 2;
 }
 
 .pricing-card-badge.popular {
@@ -2620,6 +2622,22 @@ img {
   background: #fffbeb;
   color: #92400e;
   border: 1px solid #fde68a;
+}
+
+/* Verified Scholars Wall */
+.scholar-proof-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.scholar-proof-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 32px -6px rgba(15, 23, 42, 0.12);
+  border-color: var(--primary);
+}
+
+.app.dark .scholar-proof-card {
+  background: #111d38 !important;
+  border-color: #1e293b !important;
 }
 
 .pricing-country-header {
@@ -2831,6 +2849,7 @@ img {
   letter-spacing: 0.8px;
   box-shadow: 0 4px 12px rgba(109, 40, 217, 0.35);
   white-space: nowrap;
+  z-index: 10;
 }
 
 .package-popular-badge {
@@ -2847,6 +2866,7 @@ img {
   letter-spacing: 0.8px;
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
   white-space: nowrap;
+  z-index: 10;
 }
 
 .package-title-row {
@@ -4078,5 +4098,53 @@ img {
   }
   .stat-label-text {
     font-size: 0.7rem;
+  }
+}
+
+/* ====================================================================
+   SSLCOMMERZ PAYMENT & RECEIPT STYLES
+   ==================================================================== */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #uraan-enrollment-receipt,
+  #uraan-enrollment-receipt * {
+    visibility: visible;
+  }
+  #uraan-enrollment-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    padding: 20px !important;
+  }
+  .modal-backdrop-blur {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    position: static !important;
+  }
+  .modal-content-card {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .modal-close-btn,
+  .receipt-actions-row,
+  .receipt-actions-row * {
+    display: none !important;
+    visibility: hidden !important;
   }
 }

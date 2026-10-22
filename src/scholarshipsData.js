@@ -52,7 +52,7 @@ export const SCHOLARSHIPS_DATA = [
       airfare: true,
       healthInsurance: true
     },
-    stipendAmount: '¥143,000 – ¥145,000 / month (approx. 115,000 BDT)',
+    stipendAmount: '¥143,000 – ¥145,000 / month (approx. $960–$980 USD)',
     deadline: 'May 2026 (Embassy) / Dec 2026 (Uni)',
     status: 'Open',
     officialSource: 'mext.go.jp',
@@ -91,7 +91,7 @@ export const SCHOLARSHIPS_DATA = [
       airfare: true,
       healthInsurance: true
     },
-    stipendAmount: '₩1,000,000 – ₩1,500,000 / month (approx. 90,000–135,000 BDT)',
+    stipendAmount: '₩1,000,000 – ₩1,500,000 / month (approx. $750–$1,120 USD)',
     deadline: 'March 2026 (Grad) / Sept 2026 (Undergrad)',
     status: 'Open',
     officialSource: 'studyinkorea.go.kr',
@@ -169,7 +169,7 @@ export const SCHOLARSHIPS_DATA = [
       airfare: false,
       healthInsurance: true
     },
-    stipendAmount: '¥2,500 – ¥3,500 / month (approx. 42,000–60,000 BDT)',
+    stipendAmount: '¥2,500 – ¥3,500 / month (approx. $350–$500 USD)',
     deadline: '31 March 2026',
     status: 'Open',
     officialSource: 'campuschina.org',
@@ -208,7 +208,7 @@ export const SCHOLARSHIPS_DATA = [
       airfare: false,
       healthInsurance: true
     },
-    stipendAmount: 'NT$15,000 – NT$20,000 / month (approx. 56,000–75,000 BDT)',
+    stipendAmount: 'NT$15,000 – NT$20,000 / month (approx. $460–$620 USD)',
     deadline: '31 March 2026',
     status: 'Open',
     officialSource: 'edu.tw',
@@ -247,7 +247,7 @@ export const SCHOLARSHIPS_DATA = [
       airfare: true,
       healthInsurance: true
     },
-    stipendAmount: '$20,000 – $30,000 / year (approx. 200,000–300,000 BDT/month)',
+    stipendAmount: '$20,000 – $30,000 / year (approx. $1,660–$2,500 USD/month)',
     deadline: 'Dec 2026 (KAUST) / Feb 2027 (KFUPM)',
     status: 'Upcoming',
     officialSource: 'kaust.edu.sa',
@@ -325,7 +325,7 @@ export const SCHOLARSHIPS_DATA = [
       airfare: false,
       healthInsurance: false
     },
-    stipendAmount: 'RM 1,500 / month living allowance (approx. 40,000 BDT)',
+    stipendAmount: 'RM 1,500 / month living allowance (approx. $340 USD)',
     deadline: '30 June 2026',
     status: 'Open',
     officialSource: 'mohe.gov.my',
@@ -524,7 +524,7 @@ export const SCHOLARSHIPS_DATA = [
       airfare: true,
       healthInsurance: true
     },
-    stipendAmount: 'SEK 12,000 / month (approx. 130,000 BDT) + SEK 15,000 travel grant',
+    stipendAmount: 'SEK 12,000 / month (approx. $1,150 USD) + SEK 15,000 travel grant',
     deadline: '26 Feb 2027 (Opens 10 Feb)',
     status: 'Upcoming',
     officialSource: 'si.se',
@@ -758,7 +758,7 @@ export const SCHOLARSHIPS_DATA = [
       airfare: true,
       healthInsurance: true
     },
-    stipendAmount: '€1,400 / month tax-free living allowance (approx. 182,000 BDT)',
+    stipendAmount: '€1,400 / month tax-free living allowance (approx. $1,520 USD)',
     deadline: '15 Jan 2027 (Consortium deadlines: Oct–Feb)',
     status: 'Upcoming',
     officialSource: 'eacea.ec.europa.eu',
@@ -922,7 +922,7 @@ export const SCHOLARSHIPS_DATA = [
       airfare: false,
       healthInsurance: false
     },
-    stipendAmount: 'R$ 2,100 / mo (Master) & R$ 3,100 / mo (PhD) (approx. 45,000–68,000 BDT)',
+    stipendAmount: 'R$ 2,100 / mo (Master) & R$ 3,100 / mo (PhD) (approx. $380–$560 USD)',
     deadline: '17 June 2026',
     status: 'Open',
     officialSource: 'gcub.org.br',
@@ -1320,7 +1320,7 @@ export const SCHOLARSHIPS_DATA = [
       airfare: true,
       healthInsurance: true
     },
-    stipendAmount: 'NZD $531 / week living allowance (approx. 140,000 BDT/month)',
+    stipendAmount: 'NZD $531 / week living allowance (approx. $1,280 USD/month)',
     deadline: '28 Feb 2027 (Opens 01 Feb)',
     status: 'Upcoming',
     officialSource: 'nzscholarships.govt.nz',
@@ -1390,8 +1390,8 @@ export const STUDY_ABROAD_COUNTRIES = [
     popularPrograms: 'Automotive, Mechanical, Computer Science, Renewable Energy',
     tuitionRange: '€0 (100% Tuition-Free in 15 of 16 federal states)',
     semesterFee: '€150 – €350 / semester (includes free regional train travel pass)',
-    livingCost: '€850 – €1,050 / month (approx. 110,000–135,000 BDT)',
-    blockedAccount: '€11,904 / year (€992 / month) — Exempt if awarded DAAD scholarship',
+    livingCost: '€850 – €1,050 / month (approx. $920–$1,140 USD)',
+    blockedAccount: '€11,904 / year (€992 / month ≈ $12,950 USD) — Exempt if awarded DAAD scholarship',
     visaInfo: 'German National Visa (Type D) — Appointment at German Embassy Baridhara, Dhaka',
     workRights: '140 full days (or 280 half days) per calendar year; unrestricted on-campus student jobs',
     postStudyVisa: '18-month Job Seeker Residence Permit post-graduation',
@@ -1407,8 +1407,8 @@ export const STUDY_ABROAD_COUNTRIES = [
     popularPrograms: 'Software Engineering, AI, Clean Tech, Educational Sciences, Business',
     tuitionRange: '€8,000 – €14,000 / year (Waived up to 100% with Finland Scholarships)',
     semesterFee: '€80 – €100 / year student union membership',
-    livingCost: '€700 – €950 / month (approx. 90,000–125,000 BDT)',
-    blockedAccount: '€6,720 / year (€560 / month proof of funds for 1 year)',
+    livingCost: '€700 – €950 / month (approx. $760–$1,030 USD)',
+    blockedAccount: '€6,720 / year (€560 / month ≈ $7,320 USD proof of funds for 1 year)',
     visaInfo: 'Finnish Residence Permit for Studies — Processed online via Enter Finland + VFS Dhaka',
     workRights: '30 hours per week during term time (unlimited during summer vacations)',
     postStudyVisa: '2-Year Post-Study Job Search Residence Permit',
@@ -1424,7 +1424,7 @@ export const STUDY_ABROAD_COUNTRIES = [
     popularPrograms: 'Data Science, Finance, International Law, Public Health, Management',
     tuitionRange: '£13,000 – £28,000 / year (100% funded with Chevening / Commonwealth)',
     semesterFee: 'Included in institutional tuition fee',
-    livingCost: '£1,000 – £1,450 / month (approx. 150,000–220,000 BDT)',
+    livingCost: '£1,000 – £1,450 / month (approx. $1,280–$1,850 USD)',
     blockedAccount: '28-day consecutive bank holding statement covering 9 months of maintenance',
     visaInfo: 'UK Student Route Visa (Points-Based System CAS) — VFS Global Delta Life Tower, Gulshan-2',
     workRights: '20 hours per week during university term; 40 hours/week during breaks',
@@ -1441,8 +1441,8 @@ export const STUDY_ABROAD_COUNTRIES = [
     popularPrograms: 'Robotics, Material Science, Civil Engineering, Asian Studies, Economics',
     tuitionRange: '¥535,800 / year at National Universities (100% covered by MEXT)',
     semesterFee: '¥282,000 one-off matriculation admission fee (waived for MEXT scholars)',
-    livingCost: '¥80,000 – ¥120,000 / month (approx. 65,000–96,000 BDT)',
-    blockedAccount: 'Bank solvency proof of approx. ¥1,500,000 for private applicants',
+    livingCost: '¥80,000 – ¥120,000 / month (approx. $550–$820 USD)',
+    blockedAccount: 'Bank solvency proof of approx. ¥1,500,000 ($10,200 USD) for private applicants',
     visaInfo: 'Certificate of Eligibility (COE) + Student Visa at Embassy of Japan Baridhara, Dhaka',
     workRights: '28 hours per week with Shikakugaikatsudo (work permit stamp) on landing',
     postStudyVisa: 'Designated Activities Visa (6 months to 1 year renewable job hunting)',
@@ -1458,7 +1458,7 @@ export const STUDY_ABROAD_COUNTRIES = [
     popularPrograms: 'Information Technology, Semiconductors, Media, Korean Studies, Biomedical',
     tuitionRange: '$3,000 – $7,000 / semester ($0 with GKS / Professor Lab Funding)',
     semesterFee: '$200 – $400 entrance admission fee',
-    livingCost: '₩700,000 – ₩1,100,000 / month (approx. 63,000–100,000 BDT)',
+    livingCost: '₩700,000 – ₩1,100,000 / month (approx. $520–$820 USD)',
     blockedAccount: '$20,000 USD bank solvency certificate (waived for GKS scholarship recipients)',
     visaInfo: 'D-2 Student Visa — Embassy of the Republic of Korea, Madani Avenue, Dhaka',
     workRights: '20–25 hours per week during term time depending on TOPIK level',
@@ -1475,8 +1475,8 @@ export const STUDY_ABROAD_COUNTRIES = [
     popularPrograms: 'Architecture, Fashion, Automotive Design, Economics, Data Analytics',
     tuitionRange: '€156 – €3,000 / year (Waived 100% with Regional DSU Scholarships)',
     semesterFee: '€156 regional administrative tax',
-    livingCost: '€600 – €900 / month (approx. 78,000–117,000 BDT)',
-    blockedAccount: '€6,079 / year proof of funds (€467/month) — Waived with DSU scholarship award letter',
+    livingCost: '€600 – €900 / month (approx. $650–$980 USD)',
+    blockedAccount: '€6,079 / year proof of funds (€467/month ≈ $6,620 USD) — Waived with DSU scholarship award letter',
     visaInfo: 'National Type D Student Visa via Universitaly portal + Embassy of Italy Gulshan-2, Dhaka',
     workRights: '20 hours per week (up to 1,040 hours per calendar year)',
     postStudyVisa: '12-month Permesso di Soggiorno per Ricerca Lavoro (Job Search Permit)',
@@ -1492,8 +1492,8 @@ export const STUDY_ABROAD_COUNTRIES = [
     popularPrograms: 'Artificial Intelligence, Cybersecurity, Civil Engineering, Business Analytics',
     tuitionRange: 'CAD $16,000 – $36,000 / year ($0 with Graduate Research Assistantships)',
     semesterFee: 'CAD $500 – $1,000 incidental and health plan fees',
-    livingCost: 'CAD $1,400 – $1,900 / month (approx. 125,000–170,000 BDT)',
-    blockedAccount: 'CAD $20,635 / year living expenses proof + 1st year paid tuition receipt',
+    livingCost: 'CAD $1,400 – $1,900 / month (approx. $1,020–$1,390 USD)',
+    blockedAccount: 'CAD $20,635 / year (≈ $15,100 USD) living expenses proof + 1st year paid tuition receipt',
     visaInfo: 'Canadian Study Permit (IRCC) with biometrics at VFS Global Delta Life, Gulshan-2, Dhaka',
     workRights: '20–24 hours per week off-campus during academic terms; 40 hrs/wk during breaks',
     postStudyVisa: 'Up to 3-Year Post-Graduation Work Permit (PGWP) leading to Express Entry PR',
@@ -1509,8 +1509,8 @@ export const STUDY_ABROAD_COUNTRIES = [
     popularPrograms: 'Mining Engineering, Biotechnology, Business, Nursing, Computer Science',
     tuitionRange: 'AUD $25,000 – $45,000 / year (100% covered with Australia Awards or RTP)',
     semesterFee: 'Included in tuition schedule',
-    livingCost: 'AUD $1,800 – $2,400 / month (approx. 145,000–190,000 BDT)',
-    blockedAccount: 'AUD $29,710 / year official financial capacity requirement',
+    livingCost: 'AUD $1,800 – $2,400 / month (approx. $1,180–$1,570 USD)',
+    blockedAccount: 'AUD $29,710 / year (≈ $19,300 USD) official financial capacity requirement',
     visaInfo: 'Subclass 500 Student Visa — Applied online via ImmiAccount with biometrics in Dhaka',
     workRights: '48 hours per fortnight during study terms; unrestricted during course holidays',
     postStudyVisa: 'Subclass 485 Temporary Graduate Visa (2 to 4 years work rights)',
@@ -1563,15 +1563,15 @@ export const STUDENT_TOOLS = [
   },
   {
     id: 'cost-calculator',
-    title: 'BDT Cost & Solvency Calculator',
+    title: 'Global Solvency & Living Cost Calculator',
     icon: '💰',
-    desc: 'Convert blocked accounts, tuition fees, and living expenses directly into Bangladesh Taka (BDT).',
+    desc: 'Convert blocked accounts, tuition fees, and university living expenses directly into US Dollars ($ USD).',
     actionText: 'Calculate Expenses',
-    badge: 'Live BDT'
+    badge: 'Live USD'
   },
   {
     id: 'visa-requirements',
-    title: 'Visa & VFS Dhaka Guide',
+    title: 'Visa & VFS Guide',
     icon: '🛂',
     desc: 'Complete embassy checklists for German, Finland, Italian, UK, and USA student visas in Dhaka.',
     actionText: 'View Visa Steps',
@@ -1603,17 +1603,17 @@ export const STUDENT_TOOLS = [
   }
 ]
 
-// Bangladesh Student Specific Resources & Dhaka Embassies
+// Student Specific Resources & Dhaka Embassies
 export const BANGLADESH_RESOURCES = {
   currencyRates: {
-    EUR: 130.5,
-    USD: 121.2,
-    GBP: 153.8,
-    CAD: 89.4,
-    AUD: 79.8,
-    JPY: 0.81,
-    KRW: 0.091,
-    SEK: 11.5
+    EUR: 1.09,
+    USD: 1.00,
+    GBP: 1.28,
+    CAD: 0.73,
+    AUD: 0.65,
+    JPY: 0.0068,
+    KRW: 0.00075,
+    SEK: 0.096
   },
   embassies: [
     {
@@ -1621,21 +1621,21 @@ export const BANGLADESH_RESOURCES = {
       center: 'Embassy of the Federal Republic of Germany',
       location: 'Madani Avenue, Baridhara Diplomatic Zone, Dhaka-1212',
       visaType: 'National Visa Type D (CSP/VFS appointment slot required)',
-      blockedAccountEuro: '€11,904 / year (approx. 1,553,000 BDT) — Fully exempt with DAAD letter'
+      blockedAccountEuro: '€11,904 / year (approx. $12,950 USD) — Fully exempt with DAAD letter'
     },
     {
       country: 'Italy 🇮🇹',
       center: 'Embassy of Italy & VFS Global Italy',
       location: 'Road 74/79, Plot 2/3, Gulshan-2, Dhaka (VFS at Nafi Tower, Gulshan-1)',
       visaType: 'National Type D Visa (Universitaly Summary & Pre-enrollment)',
-      blockedAccountEuro: '€6,079 / year (approx. 793,000 BDT) — Fully waived with DSU award'
+      blockedAccountEuro: '€6,079 / year (approx. $6,620 USD) — Fully waived with DSU award'
     },
     {
       country: 'United Kingdom 🇬🇧',
       center: 'VFS Global UK Visa Application Centre',
       location: 'Delta Life Tower, Plot 37, Road 90, Gulshan-2, Dhaka',
       visaType: 'Student Route (CAS from university + TB Test from IOM Dhaka)',
-      blockedAccountEuro: '£1,023–£1,334 / month for 9 months in 28-day mature bank account'
+      blockedAccountEuro: '£1,023–£1,334 / month (approx. $1,310–$1,710 USD) for 9 months in 28-day mature bank account'
     },
     {
       country: 'United States 🇺🇸',
@@ -1649,9 +1649,10 @@ export const BANGLADESH_RESOURCES = {
       center: 'VFS Global Finland Application Centre',
       location: 'Delta Life Tower, Gulshan-2, Dhaka (Biometrics for Residence Permit)',
       visaType: 'First Residence Permit for Studies (Enter Finland online portal)',
-      blockedAccountEuro: '€6,720 / year (approx. 876,000 BDT) in student’s personal bank account'
+      blockedAccountEuro: '€6,720 / year (approx. $7,320 USD) in student’s personal bank account'
     }
   ],
+
   attestationSteps: [
     {
       step: '01',
@@ -1691,8 +1692,9 @@ export const COUNTRY_PRICING_PLANS = [
     country: 'United Kingdom',
     flag: '🇬🇧',
     title: 'UK Application Support',
-    price: 3000,
-    priceFormatted: '৳3,000',
+    image: countryUk,
+    price: 29,
+    priceFormatted: '$29',
     popular: false,
     badge: null,
     features: [
@@ -1711,8 +1713,9 @@ export const COUNTRY_PRICING_PLANS = [
     country: 'Germany',
     flag: '🇩🇪',
     title: 'Germany Application Support',
-    price: 3000,
-    priceFormatted: '৳3,000',
+    image: countryGermany,
+    price: 25,
+    priceFormatted: '$25',
     popular: false,
     badge: null,
     features: [
@@ -1731,8 +1734,9 @@ export const COUNTRY_PRICING_PLANS = [
     country: 'Italy',
     flag: '🇮🇹',
     title: 'Italy Application Support',
-    price: 3500,
-    priceFormatted: '৳3,500',
+    image: countryItaly,
+    price: 25,
+    priceFormatted: '$25',
     popular: true,
     badge: 'POPULAR',
     features: [
@@ -1752,8 +1756,9 @@ export const COUNTRY_PRICING_PLANS = [
     country: 'Finland',
     flag: '🇫🇮',
     title: 'Finland Application Support',
-    price: 2500,
-    priceFormatted: '৳2,500',
+    image: countryFinland,
+    price: 20,
+    priceFormatted: '$20',
     popular: false,
     badge: null,
     features: [
@@ -1772,8 +1777,9 @@ export const COUNTRY_PRICING_PLANS = [
     country: 'Czech Republic',
     flag: '🇨🇿',
     title: 'Czech Republic Application Support',
-    price: 2500,
-    priceFormatted: '৳2,500',
+    image: countryFrance,
+    price: 20,
+    priceFormatted: '$20',
     popular: false,
     badge: null,
     features: [
@@ -1792,8 +1798,9 @@ export const COUNTRY_PRICING_PLANS = [
     country: 'Japan',
     flag: '🇯🇵',
     title: 'Japan Application Support',
-    price: 4000,
-    priceFormatted: '৳4,000',
+    image: countryJapan,
+    price: 35,
+    priceFormatted: '$35',
     popular: false,
     badge: 'SCHOLARSHIP FOCUS',
     features: [
@@ -1813,8 +1820,9 @@ export const COUNTRY_PRICING_PLANS = [
     country: 'South Korea',
     flag: '🇰🇷',
     title: 'South Korea Application Support',
-    price: 4000,
-    priceFormatted: '৳4,000',
+    image: countryJapan,
+    price: 35,
+    priceFormatted: '$35',
     popular: false,
     badge: null,
     features: [
@@ -1828,6 +1836,27 @@ export const COUNTRY_PRICING_PLANS = [
       'Application tracking'
     ],
     ctaText: 'Apply to South Korea →'
+  },
+  {
+    id: 'oceania-plan',
+    country: 'Australia & Oceania',
+    flag: '🇦🇺',
+    title: 'Oceania (Australia & NZ) Support',
+    image: countryAustralia,
+    price: 35,
+    priceFormatted: '$35',
+    popular: true,
+    badge: 'POPULAR OCEANIA',
+    features: [
+      'Top Group of Eight (Go8) & NZ university matching',
+      'Australia Awards & Manaaki NZ scholarship pathways',
+      'Subclass 500 Genuine Student (GS) statement polishing',
+      'Academic CV & Personal Statement evaluation',
+      'Home Affairs & VFS document verification checklist',
+      'Overseas Student Health Cover (OSHC) guidance',
+      'Step-by-step biometrics & visa filing roadmap'
+    ],
+    ctaText: 'Apply to Oceania →'
   }
 ]
 
@@ -1835,11 +1864,12 @@ export const MULTI_COUNTRY_PACKAGES = [
   {
     id: '2-country-pkg',
     title: '2-Country Plan',
+    image: countryCanada,
     countriesCount: 2,
-    price: 5000,
-    priceFormatted: '৳5,000',
-    originalPriceFormatted: '৳6,000',
-    savingsText: 'Save ৳1,000',
+    price: 45,
+    priceFormatted: '$45',
+    originalPriceFormatted: '$55',
+    savingsText: 'Save $10',
     badge: null,
     features: [
       'Support for 2 countries',
@@ -1855,11 +1885,12 @@ export const MULTI_COUNTRY_PACKAGES = [
   {
     id: '4-country-pkg',
     title: '4-Country Plan',
+    image: countryAustralia,
     countriesCount: 4,
-    price: 9000,
-    priceFormatted: '৳9,000',
-    originalPriceFormatted: '৳12,000',
-    savingsText: 'Save ৳3,000',
+    price: 75,
+    priceFormatted: '$75',
+    originalPriceFormatted: '$100',
+    savingsText: 'Save $25',
     badge: 'MOST POPULAR',
     popular: true,
     features: [
@@ -1878,11 +1909,12 @@ export const MULTI_COUNTRY_PACKAGES = [
   {
     id: '7-country-pkg',
     title: '7-Country Plan',
+    image: countryUsa,
     countriesCount: 7,
-    price: 15000,
-    priceFormatted: '৳15,000',
-    originalPriceFormatted: '৳22,500',
-    savingsText: 'Save up to ৳7,500',
+    price: 120,
+    priceFormatted: '$120',
+    originalPriceFormatted: '$180',
+    savingsText: 'Save up to $60',
     badge: 'BEST VALUE',
     hero: true,
     features: [
@@ -1901,14 +1933,15 @@ export const MULTI_COUNTRY_PACKAGES = [
   }
 ]
 
+
 export const ADDON_SERVICES = [
   {
     id: 'cv-optimization',
     title: 'Academic CV & Resume Optimization',
     category: 'review',
     categoryLabel: 'Document Review',
-    price: 500,
-    priceFormatted: '৳500',
+    price: 5,
+    priceFormatted: '$5',
     icon: '📄',
     turnaround: '24-48 Hours',
     desc: 'Harvard & Europass formatting review with academic ATS compliance and faculty-focused layout.',
@@ -1924,8 +1957,8 @@ export const ADDON_SERVICES = [
     title: 'Statement of Purpose (SOP) Guidance',
     category: 'writing',
     categoryLabel: 'Academic Writing',
-    price: 1000,
-    priceFormatted: '৳1,000',
+    price: 9,
+    priceFormatted: '$9',
     icon: '✍️',
     turnaround: '48-72 Hours',
     desc: 'Comprehensive Statement of Purpose draft tailored to your academic profile and target university.',
@@ -1941,8 +1974,8 @@ export const ADDON_SERVICES = [
     title: 'Scholarship Motivation Letter',
     category: 'writing',
     categoryLabel: 'Academic Writing',
-    price: 800,
-    priceFormatted: '৳800',
+    price: 7,
+    priceFormatted: '$7',
     icon: '💌',
     turnaround: '48 Hours',
     desc: 'Persuasive country and scholarship-specific motivation letter (DAAD, Chevening, Stipendium Hungaricum).',
@@ -1958,8 +1991,8 @@ export const ADDON_SERVICES = [
     title: 'Professor Cold Email & Outreach Pack',
     category: 'writing',
     categoryLabel: 'Academic Writing',
-    price: 600,
-    priceFormatted: '৳600',
+    price: 5,
+    priceFormatted: '$5',
     icon: '📧',
     turnaround: '24 Hours',
     desc: 'Custom outreach template and review for contacting prospective supervisors for MSc thesis & PhD funding.',
@@ -1975,8 +2008,8 @@ export const ADDON_SERVICES = [
     title: '1-on-1 Profile Strategy Session',
     category: 'strategy',
     categoryLabel: 'Advisory & Strategy',
-    price: 500,
-    priceFormatted: '৳500',
+    price: 5,
+    priceFormatted: '$5',
     icon: '💬',
     turnaround: 'Same Day / Scheduled',
     desc: '30-minute private 1-on-1 strategy video call with an international education counselor.',
@@ -1992,8 +2025,8 @@ export const ADDON_SERVICES = [
     title: 'Embassy Mock Visa Interview & Prep',
     category: 'visa',
     categoryLabel: 'Visa & Embassies',
-    price: 800,
-    priceFormatted: '৳800',
+    price: 8,
+    priceFormatted: '$8',
     icon: '🎙️',
     turnaround: 'Scheduled 45-Min Call',
     desc: 'Realistic mock interview simulation tailored to German, USA, UK, or Italian student visa questions.',
@@ -2009,8 +2042,8 @@ export const ADDON_SERVICES = [
     title: 'Visa Document Audit & Blocked Account Guide',
     category: 'visa',
     categoryLabel: 'Visa & Embassies',
-    price: 500,
-    priceFormatted: '৳500',
+    price: 5,
+    priceFormatted: '$5',
     icon: '🛂',
     turnaround: '24-48 Hours',
     desc: 'Embassy-specific document audit, Dhaka VFS/embassy submission checks, and blocked account setup guidance.',
@@ -2026,8 +2059,8 @@ export const ADDON_SERVICES = [
     title: 'Academic LinkedIn & Scholar Profile Setup',
     category: 'strategy',
     categoryLabel: 'Advisory & Strategy',
-    price: 500,
-    priceFormatted: '৳500',
+    price: 5,
+    priceFormatted: '$5',
     icon: '💼',
     turnaround: '48 Hours',
     desc: 'Professional headline, bio, and research showcase optimized to connect with professors and labs.',
@@ -2039,6 +2072,7 @@ export const ADDON_SERVICES = [
     ]
   }
 ]
+
 
 export const COMPARISON_MATRIX = [
   { feature: 'University & Course Selection', c1: '✓', c2: '✓', c4: '✓', c7: '✓' },

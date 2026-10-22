@@ -646,3 +646,254 @@ export const downloadTxtFile = (textContent, fileBaseName) => {
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
 }
+
+// Official Enrollment Invoice & Receipt HTML/Word (.html / .doc) Downloader
+export const downloadOfficialInvoice = (order, format = 'html') => {
+  if (!order) return
+  const customerName = order.customer?.name || 'Valued Student'
+  const email = order.customer?.email || 'N/A'
+  const phone = order.customer?.phone || 'N/A'
+  const degree = order.customer?.degree || 'Master'
+  const cgpa = order.customer?.cgpa || 'N/A'
+  const tranId = order.tran_id || `URAAN_${Date.now()}`
+  const packageTitle = order.package?.title || 'Uraan Study Abroad Application Plan'
+  const amount = Number(order.package?.amount || 0).toLocaleString()
+  const gateway = order.payment?.card_type || (order.tran_id?.startsWith('STRIPE_') ? 'Stripe (International Cards / Apple Pay)' : 'SSLCOMMERZ')
+  const dateStr = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+  const timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+
+  const invoiceHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Uraan Official Invoice - ${tranId}</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    .invoice-card {
+      max-width: 750px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+    .header-table { width: 100%; border-bottom: 2px solid #e2e8f0; padding-bottom: 24px; margin-bottom: 28px; }
+    .brand-name { font-size: 26px; font-weight: 800; color: #1d4ed8; letter-spacing: -0.5px; }
+    .brand-sub { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .invoice-meta { text-align: right; }
+    .invoice-title { font-size: 22px; font-weight: 800; color: #0f172a; }
+    .meta-item { font-size: 13px; color: #64748b; margin-top: 3px; }
+    .status-badge {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #059669;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid #a7f3d0;
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+    }
+    .info-grid {
+      display: table;
+      width: 100%;
+      margin-bottom: 28px;
+    }
+    .info-col {
+      display: table-cell;
+      width: 50%;
+      vertical-align: top;
+    }
+    .info-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-value { font-size: 14px; font-weight: 600; color: #1e293b; margin-top: 3px; line-height: 1.4; }
+    .item-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 28px;
+    }
+    .item-table th {
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+      text-align: left;
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .item-table td {
+      padding: 16px;
+      font-size: 14px;
+      color: #1e293b;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .amount-box {
+      float: right;
+      width: 280px;
+      margin-bottom: 28px;
+    }
+    .amount-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: 6px 0;
+      color: #64748b;
+    }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      font-weight: 800;
+      padding: 12px 0 0;
+      color: #1d4ed8;
+      border-top: 2px solid #e2e8f0;
+    }
+    .guarantee-box {
+      clear: both;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: #1e40af;
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+    .seal-table {
+      width: 100%;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 20px;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #64748b;
+    }
+    @media print {
+      body { background: #ffffff; padding: 0; }
+      .invoice-card { box-shadow: none; border: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-card">
+    <table class="header-table">
+      <tr>
+        <td style="vertical-align: middle;">
+          <div class="brand-name">URAAN</div>
+          <div class="brand-sub">Global Admissions & Verified Scholarships Platform</div>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Support: contact@uraan.com &bull; Dhaka & Worldwide</div>
+        </td>
+        <td class="invoice-meta">
+          <div class="invoice-title">OFFICIAL INVOICE</div>
+          <div class="meta-item">Invoice #: <strong>INV-${tranId.slice(-8)}</strong></div>
+          <div class="meta-item">Date: <strong>${dateStr}</strong></div>
+          <div class="status-badge">✓ PAYMENT VERIFIED & PAID</div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="info-grid">
+      <div class="info-col">
+        <div class="info-label">BILLED TO (STUDENT)</div>
+        <div class="info-value"><strong>${customerName}</strong></div>
+        <div class="info-value">Phone: ${phone}</div>
+        <div class="info-value">Email: ${email}</div>
+        <div class="info-value">Target Degree: ${degree} &bull; CGPA: ${cgpa}</div>
+      </div>
+      <div class="info-col" style="padding-left: 20px;">
+        <div class="info-label">PAYMENT METHOD & TRANSACTION</div>
+        <div class="info-value">Gateway: <strong>${gateway}</strong></div>
+        <div class="info-value">Transaction ID: <span style="font-family: monospace;">${tranId}</span></div>
+        <div class="info-value">Payment Time: ${timeStr}</div>
+        <div class="info-value">Currency: <strong>USD ($)</strong></div>
+      </div>
+    </div>
+
+    <table class="item-table">
+      <thead>
+        <tr>
+          <th>Service Item & Scope</th>
+          <th style="text-align: center; width: 80px;">Qty</th>
+          <th style="text-align: right; width: 120px;">Price (USD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>${packageTitle}</strong>
+            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
+              Includes dedicated 1-on-1 advisor matching, university shortlisting, academic SOP & CV polishing, mandatory document attestation roadmap, and direct portal submission tracking.
+            </div>
+          </td>
+          <td style="text-align: center; vertical-align: top;">1</td>
+          <td style="text-align: right; vertical-align: top; font-weight: 700;">$${amount} USD</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="amount-box">
+      <div class="amount-row">
+        <span>Subtotal:</span>
+        <span>$${amount} USD</span>
+      </div>
+      <div class="amount-row">
+        <span>Official Taxes / Gateway:</span>
+        <span>$0.00 (Covered)</span>
+      </div>
+      <div class="total-row">
+        <span>Total Paid:</span>
+        <span>$${amount} USD</span>
+      </div>
+    </div>
+
+    <div class="guarantee-box">
+      <strong>🎓 Onboarding Notice:</strong> Your registration is locked in. A senior Uraan admissions mentor is assigned to your profile. You will receive an initial onboarding consultation and access to your application tracker within 24 hours.
+    </div>
+
+    <table class="seal-table">
+      <tr>
+        <td style="width: 70%;">
+          <div><strong>Authorized Electronic Invoice & Service Voucher</strong></div>
+          <div>Issued by Uraan Admissions Platform &bull; Valid for visa & academic records.</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Security Hash: ${Math.random().toString(36).substring(2, 15).toUpperCase()}</div>
+        </td>
+        <td style="text-align: right; vertical-align: middle;">
+          <div style="display: inline-block; border: 2px solid #059669; color: #059669; padding: 6px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;">
+            ✓ OFFICIAL SEAL
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
+  `
+
+  const mimeType = format === 'doc' ? 'application/msword;charset=utf-8' : 'text/html;charset=utf-8'
+  const ext = format === 'doc' ? 'doc' : 'html'
+  const blob = new Blob([format === 'doc' ? '\ufeff' + invoiceHtml : invoiceHtml], { type: mimeType })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `Uraan_Invoice_${customerName.replace(/[^a-zA-Z0-9_-]/g, '_')}_${tranId}.${ext}`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}

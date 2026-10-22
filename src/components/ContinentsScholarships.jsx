@@ -1,5 +1,10 @@
 import React, { useState, useMemo } from "react";
 import "./ContinentsScholarships.css";
+import countryAustralia from "../assets/country_australia.jpg";
+import countryJapan from "../assets/country_japan.jpg";
+import countryGermany from "../assets/country_germany.jpg";
+import countryUsa from "../assets/country_usa.jpg";
+import heroTravelPanorama from "../assets/hero_travel_panorama.jpg";
 
 const continents = [
   {
@@ -7,16 +12,14 @@ const continents = [
     name: "All Continents",
     icon: "🌐",
     count: 33,
-    image:
-      "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?auto=format&fit=crop&w=1000&q=80",
+    image: heroTravelPanorama,
   },
   {
     id: "asia",
     name: "Asia",
     icon: "🌏",
     count: 8,
-    image:
-      "https://images.unsplash.com/photo-1535139262971-c51845709a48?auto=format&fit=crop&w=1000&q=80",
+    image: countryJapan,
     countries: "Japan • South Korea • China • Türkiye",
   },
   {
@@ -24,8 +27,7 @@ const continents = [
     name: "Europe",
     icon: "🌍",
     count: 11,
-    image:
-      "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1000&q=80",
+    image: countryGermany,
     countries: "Germany • Italy • Finland • Hungary • Czech Republic",
   },
   {
@@ -33,8 +35,7 @@ const continents = [
     name: "North America",
     icon: "🌎",
     count: 3,
-    image:
-      "https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=1000&q=80",
+    image: countryUsa,
     countries: "Canada • USA",
   },
   {
@@ -60,8 +61,7 @@ const continents = [
     name: "Oceania",
     icon: "🌏",
     count: 2,
-    image:
-      "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d7?auto=format&fit=crop&w=1000&q=80",
+    image: countryAustralia,
     countries: "Australia • New Zealand",
   },
   {

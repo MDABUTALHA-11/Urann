@@ -8,14 +8,22 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "server": "node server/index.js",
+    "server:dev": "node --watch server/index.js",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.6",
+    "express": "^5.2.1",
     "lucide-react": "^1.33.0",
+    "mongoose": "^9.11.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.2"
+    "react-router-dom": "^7.18.2",
+    "sslcommerz-lts": "^1.2.0",
+    "stripe": "^23.0.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
