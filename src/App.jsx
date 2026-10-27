@@ -667,14 +667,14 @@ function App() {
                               country: 'Russia',
                               flag: '🇷🇺',
                               title: 'Russia & Open Doors Scholarship Support',
-                              price: 25,
-                              priceFormatted: '$25'
+                              price: 15,
+                              priceFormatted: '$15'
                             }
                             setSelectedPlanBookingModal({ type: 'country', item: plan })
                           }}
                         >
                           <CreditCard size={15} />
-                          <span>Pay & Apply ($25 via Gateway)</span>
+                          <span>Pay & Apply ($15 via Gateway)</span>
                         </button>
 
                         <button
@@ -2378,8 +2378,8 @@ function App() {
                     </span>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#059669' }}>$25</span>
-                    <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block' }}>approx. ৳2,750 BDT</span>
+                    <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#059669' }}>$15</span>
+                    <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block' }}>approx. ৳1,650 BDT</span>
                   </div>
                 </div>
 
@@ -2416,15 +2416,15 @@ function App() {
                       country: 'Russia',
                       flag: '🇷🇺',
                       title: 'Russia & Open Doors Scholarship Support',
-                      price: 25,
-                      priceFormatted: '$25'
+                      price: 15,
+                      priceFormatted: '$15'
                     }
                     setSelectedPlanBookingModal({ type: 'country', item: plan })
                     setSelectedScholarshipModal(null)
                   }}
                 >
                   <CreditCard size={16} />
-                  <span>Pay & Secure Application Guidance ($25 via Gateway) &rarr;</span>
+                  <span>Pay & Secure Application Guidance ($15 via Gateway) &rarr;</span>
                 </button>
               </div>
             )}

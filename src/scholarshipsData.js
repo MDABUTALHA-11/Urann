@@ -1745,8 +1745,8 @@ export const COUNTRY_PRICING_PLANS = [
     flag: '🇷🇺',
     title: 'Russia & Open Doors Scholarship Support',
     image: heroLandmarks,
-    price: 25,
-    priceFormatted: '$25',
+    price: 15,
+    priceFormatted: '$15',
     popular: true,
     badge: '🚨 5 DAYS LEFT',
     features: [
