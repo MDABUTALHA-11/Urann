@@ -17,11 +17,12 @@ import countryAustralia from './assets/country_australia.jpg'
 import countryCanada from './assets/country_canada.jpg'
 import countryUsa from './assets/country_usa.jpg'
 import countryTurkiye from './assets/country_turkiye.jpg'
+import heroLandmarks from './assets/hero_landmarks.jpg'
 
 export const CONTINENTS = [
-  { id: 'all', name: 'All Continents', icon: '🌐', count: 35 },
+  { id: 'all', name: 'All Continents', icon: '🌐', count: 36 },
   { id: 'asia', name: 'Asia', icon: '🌏', count: 8 },
-  { id: 'europe', name: 'Europe', icon: '🌍', count: 11 },
+  { id: 'europe', name: 'Europe', icon: '🌍', count: 12 },
   { id: 'north-america', name: 'North America', icon: '🌎', count: 3 },
   { id: 'south-america', name: 'South America', icon: '🌎', count: 4 },
   { id: 'africa', name: 'Africa', icon: '🌍', count: 5 },
@@ -349,6 +350,56 @@ export const SCHOLARSHIPS_DATA = [
   // ==========================================
   // 🌍 EUROPE
   // ==========================================
+  {
+    id: 'open-doors-russia',
+    name: 'Open Doors: Russian Scholarship Project',
+    shortName: 'Open Doors Russia',
+    country: 'Russia',
+    countryCode: 'RU',
+    continent: 'europe',
+    flag: '🇷🇺',
+    image: heroLandmarks,
+    degree: "Master's, PhD & Postdoctoral",
+    degreeLevel: 'Master & PhD',
+    fundingType: 'Fully Funded',
+    coverage: {
+      tuition: true,
+      stipend: true,
+      accommodation: true,
+      airfare: false,
+      healthInsurance: false
+    },
+    stipendAmount: 'State academic stipend (up to 20,000–30,000 RUB/mo) + 100% Tuition Exemption',
+    deadline: 'November 1, 2026 (🚨 ONLY 5 DAYS LEFT!)',
+    startDate: 'October 27, 2026',
+    endDate: 'November 1, 2026',
+    daysLeft: 5,
+    status: 'Open',
+    officialSource: 'od.globaluni.ru',
+    officialUrl: 'https://od.globaluni.ru/en/',
+    badge: '🚨 Urgent: 5 Days Left',
+    popular: true,
+    subject: 'All Major Fields (STEM, Physics, AI, Data Science, Medicine, Economics, Humanities)',
+    ieltsRequired: false,
+    ieltsNote: 'No IELTS mandatory. Study tracks available in English and Russian with preparatory language year.',
+    eligibility: 'Open to all international students with a Bachelor’s or Master’s degree. Portfolio competition registration strictly closes in 5 days!',
+    description: 'The Open Doors: Russian Scholarship Project (Association of Global Universities) grants international students tuition-free education at top Russian universities (Higher School of Economics, ITMO, MIPT, TPU, SPbPU, etc.) funded by the Ministry of Science and Higher Education of the Russian Federation.',
+    perks: [
+      '100% Free Tuition at Leading Russian Universities',
+      'Early admission without entrance exams',
+      'Research opportunities under world-class scientists',
+      'Monthly state academic stipend & subsidized dorms',
+      'Study in English or Russian (free preparatory year included)'
+    ],
+    bdSpecifics: {
+      embassy: 'Embassy of the Russian Federation in Dhaka, House NE(J) 9, Road 79, Gulshan-2, Dhaka 1212',
+      cgpaTarget: '3.00 out of 4.00 (Evaluation based on research portfolio, publications & achievements)',
+      attestation: 'Initial stage requires online document upload; consular legalization required for finalists',
+      timeline: 'Registration period ends on November 1, 2026. Exactly 5 days remaining from October 27, 2026!'
+    },
+    paymentGatewayAvailable: true,
+    paymentGatewayPlanId: 'russia-open-doors-plan'
+  },
   {
     id: 'daad-germany',
     name: 'DAAD Scholarships (EPOS & Helmut-Schmidt)',
@@ -1365,8 +1416,9 @@ export const ANTARCTICA_SPECIAL_NOTE = {
   scarFellowshipUrl: 'https://scar.org/awards/fellowships/'
 }
 
-// 10 Featured Popular Scholarships for the dedicated highlight section
+// Featured Popular Scholarships for the dedicated highlight section
 export const POPULAR_SCHOLARSHIPS_IDS = [
+  'open-doors-russia',
   'mext-japan',
   'gks-korea',
   'turkiye-scholarships',
@@ -1687,6 +1739,26 @@ export const BANGLADESH_RESOURCES = {
 // ============================================================================
 
 export const COUNTRY_PRICING_PLANS = [
+  {
+    id: 'russia-open-doors-plan',
+    country: 'Russia',
+    flag: '🇷🇺',
+    title: 'Russia & Open Doors Scholarship Support',
+    image: heroLandmarks,
+    price: 25,
+    priceFormatted: '$25',
+    popular: true,
+    badge: '🚨 5 DAYS LEFT',
+    features: [
+      'Open Doors Olympiad portfolio preparation',
+      'Research proposal & scientific outline review',
+      'Top Russian university & lab matching',
+      '100% Tuition waiver & state stipend guidance',
+      'Document checklist & consular attestation',
+      'Fast-track 5-day deadline submission assistance'
+    ],
+    ctaText: 'Pay & Apply Now →'
+  },
   {
     id: 'uk-plan',
     country: 'United Kingdom',

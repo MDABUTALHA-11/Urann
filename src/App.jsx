@@ -157,6 +157,37 @@ function App() {
   const [paymentSuccessOrder, setPaymentSuccessOrder] = useState(null)
   const [paymentStatusNotice, setPaymentStatusNotice] = useState(null)
 
+  // Russian Scholarship Urgent Countdown & Banner State (Oct 27, 2026 - Nov 1, 2026)
+  const [showRussiaBanner, setShowRussiaBanner] = useState(true)
+  const [russiaTimeLeft, setRussiaTimeLeft] = useState(() => {
+    const deadline = new Date('2026-11-01T23:59:59+06:00').getTime()
+    const now = Date.now()
+    const diff = Math.max(0, deadline - now)
+    return {
+      total: diff,
+      days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((diff / (1000 * 60)) % 60),
+      seconds: Math.floor((diff / 1000) % 60)
+    }
+  })
+
+  useEffect(() => {
+    const target = new Date('2026-11-01T23:59:59+06:00').getTime()
+    const timer = setInterval(() => {
+      const now = Date.now()
+      const diff = Math.max(0, target - now)
+      setRussiaTimeLeft({
+        total: diff,
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60)
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const paymentStatus = params.get('payment_status')
@@ -555,6 +586,114 @@ function App() {
            ==================================================================== */}
         {currentPage === 'home' && (
           <>
+            {/* ====================================================================
+                URGENT NAVBAR ANNOUNCEMENT BANNER: Open Doors Russian Scholarship Project
+                Active for few days (October 27, 2026 -> November 1, 2026)
+               ==================================================================== */}
+            {showRussiaBanner && (
+              <aside className="urgent-russia-banner" aria-label="Urgent Scholarship Announcement">
+                <button
+                  type="button"
+                  className="russia-banner-dismiss"
+                  onClick={() => setShowRussiaBanner(false)}
+                  aria-label="Dismiss announcement"
+                  title="Dismiss banner"
+                >
+                  <X size={16} />
+                </button>
+
+                <div className="urgent-russia-container">
+                  <div className="urgent-russia-grid">
+                    <div>
+                      <div className="russia-banner-badge-row">
+                        <span className="russia-pulse-pill">
+                          <span className="russia-pulse-dot" />
+                          🚨 ONLY 5 DAYS LEFT! 🇷🇺🎓
+                        </span>
+                        <span className="russia-period-pill">
+                          📅 Time Period: Oct 27, 2026 &rarr; Nov 1, 2026 (23:59 MSK)
+                        </span>
+                      </div>
+
+                      <h2 className="russia-banner-title">
+                        Open Doors: Russian Scholarship Project <span>(100% Tuition-Free)</span>
+                      </h2>
+
+                      <p className="russia-banner-desc">
+                        Pursue tuition-free Bachelor, Master, PhD & Postdoc degrees at leading Russian universities (HSE, ITMO, MIPT, TPU, SPbPU). No mandatory IELTS • Monthly state stipend + subsidized dorms • Fast-track application support available.
+                      </p>
+
+                      <div className="russia-banner-gateways-strip">
+                        <span>💳 Instant Payment Gateway:</span>
+                        <span className="russia-gateway-chip">bKash</span>
+                        <span className="russia-gateway-chip">Nagad</span>
+                        <span className="russia-gateway-chip">Rocket</span>
+                        <span className="russia-gateway-chip">Visa/MasterCard</span>
+                        <span className="russia-gateway-chip">Apple Pay</span>
+                        <span style={{ color: '#86efac', fontWeight: 700 }}>🔒 SSLCOMMERZ & Stripe</span>
+                      </div>
+                    </div>
+
+                    <div className="russia-countdown-container">
+                      <div className="russia-timer-wrap">
+                        <div className="russia-timer-segment">
+                          <span className="russia-timer-val">{String(russiaTimeLeft.days).padStart(2, '0')}</span>
+                          <span className="russia-timer-lbl">Days</span>
+                        </div>
+                        <span className="russia-timer-divider">:</span>
+                        <div className="russia-timer-segment">
+                          <span className="russia-timer-val">{String(russiaTimeLeft.hours).padStart(2, '0')}</span>
+                          <span className="russia-timer-lbl">Hours</span>
+                        </div>
+                        <span className="russia-timer-divider">:</span>
+                        <div className="russia-timer-segment">
+                          <span className="russia-timer-val">{String(russiaTimeLeft.minutes).padStart(2, '0')}</span>
+                          <span className="russia-timer-lbl">Mins</span>
+                        </div>
+                        <span className="russia-timer-divider">:</span>
+                        <div className="russia-timer-segment">
+                          <span className="russia-timer-val">{String(russiaTimeLeft.seconds).padStart(2, '0')}</span>
+                          <span className="russia-timer-lbl">Secs</span>
+                        </div>
+                      </div>
+
+                      <div className="russia-banner-actions">
+                        <button
+                          type="button"
+                          className="btn-russia-checkout"
+                          onClick={() => {
+                            const plan = COUNTRY_PRICING_PLANS.find(p => p.id === 'russia-open-doors-plan') || {
+                              id: 'russia-open-doors-plan',
+                              country: 'Russia',
+                              flag: '🇷🇺',
+                              title: 'Russia & Open Doors Scholarship Support',
+                              price: 25,
+                              priceFormatted: '$25'
+                            }
+                            setSelectedPlanBookingModal({ type: 'country', item: plan })
+                          }}
+                        >
+                          <CreditCard size={15} />
+                          <span>Pay & Apply ($25 via Gateway)</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn-russia-modal"
+                          onClick={() => {
+                            const sch = SCHOLARSHIPS_DATA.find(s => s.id === 'open-doors-russia')
+                            if (sch) setSelectedScholarshipModal(sch)
+                          }}
+                        >
+                          <span>View Scholarship Details &rarr;</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            )}
+
             {/* ====================================================================
                 HERO VIDEO BANNER: Student Journey Video with Cinematic Text Overlay
                 Positioned directly after the Navbar
@@ -2110,6 +2249,49 @@ function App() {
               {selectedScholarshipModal.description}
             </p>
 
+            {/* Urgent Deadline Countdown Banner (e.g. for Open Doors 5 Days Left) */}
+            {selectedScholarshipModal.daysLeft && (
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+                  border: '2px solid #ef4444',
+                  borderRadius: '12px',
+                  padding: '14px 18px',
+                  marginBottom: '18px',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.12)'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '1.3rem' }}>🚨</span>
+                    <strong style={{ color: '#b91c1c', fontSize: '1rem', fontWeight: 800 }}>
+                      ONLY {selectedScholarshipModal.daysLeft} DAYS LEFT UNTIL REGISTRATION CLOSES!
+                    </strong>
+                  </div>
+                  <span
+                    style={{
+                      background: '#dc2626',
+                      color: '#ffffff',
+                      fontSize: '0.74rem',
+                      fontWeight: 800,
+                      padding: '4px 10px',
+                      borderRadius: '20px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}
+                  >
+                    Urgent Window
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.86rem', color: '#7f1d1d', lineHeight: 1.5 }}>
+                  <div>⏳ <strong>Application Window:</strong> Today ({selectedScholarshipModal.startDate || 'October 27, 2026'}) &rarr; Finish Date: <strong>{selectedScholarshipModal.endDate || 'November 1, 2026'} (23:59 MSK / 11:59 PM GMT+6)</strong></div>
+                  <div style={{ marginTop: '3px', fontSize: '0.8rem', opacity: 0.9 }}>
+                    Complete your registration and portfolio submission before the system lockout.
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Full Coverage Breakdown Table */}
             <div style={{ background: 'var(--surface-alt)', borderRadius: '14px', padding: '16px', marginBottom: '18px', border: '1px solid var(--border)' }}>
               <h4 style={{ fontSize: '0.95rem', fontWeight: 800, marginBottom: '10px', color: 'var(--primary)' }}>
@@ -2172,6 +2354,80 @@ function App() {
                 ))}
               </div>
             </div>
+
+            {/* Secure Payment Gateway Checkout Box */}
+            {selectedScholarshipModal.paymentGatewayAvailable && (
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%)',
+                  border: '1.5px solid #0284c7',
+                  borderRadius: '14px',
+                  padding: '16px 18px',
+                  marginBottom: '20px',
+                  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.08)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div>
+                    <strong style={{ fontSize: '0.98rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CreditCard size={18} color="#0284c7" />
+                      Priority Application & Mentorship Package
+                    </strong>
+                    <span style={{ fontSize: '0.8rem', color: '#475569', display: 'block', marginTop: '2px' }}>
+                      Instant secure checkout via <strong>SSLCOMMERZ</strong> (bKash / Nagad / Rocket) & <strong>Stripe</strong> (Visa, MC, Apple Pay)
+                    </span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#059669' }}>$25</span>
+                    <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block' }}>approx. ৳2,750 BDT</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '0.72rem', background: '#e11d48', color: '#fff', padding: '2px 7px', borderRadius: '4px', fontWeight: 700 }}>bKash</span>
+                  <span style={{ fontSize: '0.72rem', background: '#ea580c', color: '#fff', padding: '2px 7px', borderRadius: '4px', fontWeight: 700 }}>Nagad</span>
+                  <span style={{ fontSize: '0.72rem', background: '#7c3aed', color: '#fff', padding: '2px 7px', borderRadius: '4px', fontWeight: 700 }}>Rocket</span>
+                  <span style={{ fontSize: '0.72rem', background: '#2563eb', color: '#fff', padding: '2px 7px', borderRadius: '4px', fontWeight: 700 }}>Visa/MasterCard</span>
+                  <span style={{ fontSize: '0.72rem', background: '#0f172a', color: '#fff', padding: '2px 7px', borderRadius: '4px', fontWeight: 700 }}>Apple Pay</span>
+                  <span style={{ fontSize: '0.72rem', background: '#059669', color: '#fff', padding: '2px 7px', borderRadius: '4px', fontWeight: 700 }}>🔒 256-Bit SSL Encrypted</span>
+                </div>
+
+                <button
+                  type="button"
+                  style={{
+                    width: '100%',
+                    padding: '12px 18px',
+                    fontSize: '0.92rem',
+                    fontWeight: 700,
+                    background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
+                  }}
+                  onClick={() => {
+                    const plan = COUNTRY_PRICING_PLANS.find(p => p.id === selectedScholarshipModal.paymentGatewayPlanId) || {
+                      id: 'russia-open-doors-plan',
+                      country: 'Russia',
+                      flag: '🇷🇺',
+                      title: 'Russia & Open Doors Scholarship Support',
+                      price: 25,
+                      priceFormatted: '$25'
+                    }
+                    setSelectedPlanBookingModal({ type: 'country', item: plan })
+                    setSelectedScholarshipModal(null)
+                  }}
+                >
+                  <CreditCard size={16} />
+                  <span>Pay & Secure Application Guidance ($25 via Gateway) &rarr;</span>
+                </button>
+              </div>
+            )}
 
             {/* Modal Bottom Actions */}
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
