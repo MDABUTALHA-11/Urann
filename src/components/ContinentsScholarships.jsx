@@ -11,7 +11,7 @@ const continents = [
     id: "all",
     name: "All Continents",
     icon: "🌐",
-    count: 34,
+    count: 33,
     image: heroTravelPanorama,
   },
   {
@@ -26,9 +26,9 @@ const continents = [
     id: "europe",
     name: "Europe",
     icon: "🌍",
-    count: 12,
+    count: 11,
     image: countryGermany,
-    countries: "Russia • Germany • Italy • Finland • Hungary • Czech Republic",
+    countries: "Germany • Italy • Finland • Hungary • France • Czech Republic",
   },
   {
     id: "north-america",
@@ -166,18 +166,7 @@ const scholarships = [
     officialUrl: "https://www.mfa.gov.bn",
   },
 
-  // 🌍 EUROPE (12 Opportunities)
-  {
-    continent: "europe",
-    flag: "🇷🇺",
-    country: "Russia",
-    title: "Open Doors: Russian Scholarship Project",
-    degree: "Master's / PhD",
-    funding: "Fully Funded",
-    deadline: "Nov 1, 2026 (🚨 5 Days Left)",
-    stipend: "100% Free Tuition + Monthly State Stipend",
-    officialUrl: "https://od.globaluni.ru/en/",
-  },
+  // 🌍 EUROPE (11 Opportunities)
   {
     continent: "europe",
     flag: "🇩🇪",
